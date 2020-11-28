@@ -6,7 +6,8 @@ import cookie from "react-cookies";
 import { connect } from "react-redux";
 import { CustomerType } from "../../../../actions";
 import jwt_decode from "jwt-decode";
-
+import { graphql, compose } from "react-apollo";
+import { restLoginMutation } from "../../../../mutation/mutation";
 class signupform extends Component {
   constructor(props) {
     super(props);
@@ -31,53 +32,88 @@ class signupform extends Component {
       password: e.target.value,
     });
   };
-  submitLogin = (e) => {
+  submitLogin = async (e) => {
     //prevent page from refresh
     e.preventDefault();
-    const data = {
-      username: this.state.username,
-      password: this.state.password,
-    };
-    //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios
-      .post("http://localhost:3001/loginrest", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            authFlag: true,
-            jwt_token: response.data,
-          });
-          sessionStorage.setItem("typeofuser", "Restaurant");
-          sessionStorage.setItem("restaurantEmailForOrder", data.username);
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
+    console.log(this.state);
+    let mutationResponse = await this.props.restLoginMutation({
+      variables: {
+        email: this.state.username,
+        pass: this.state.password,
+      },
+    });
+    console.log(mutationResponse);
+    let response = mutationResponse.data.restLogin;
+    if (response) {
+      if (response.status === "200") {
+        console.log(
+          "CHecking response from mutation to put email in session storage",
+          response.message
+        );
+        // localStorage.setItem('_id', response.message);
+        // localStorage.setItem('type', 'Company');
+        localStorage.setItem("LogFlag", true);
+        sessionStorage.setItem("typeofuser", "Restaurant");
+        sessionStorage.setItem("restaurantEmailForOrder", response.message);
         this.setState({
-          error: "Please enter correct credentials" + e,
+          authFlag: true,
         });
-      });
+      } else {
+        this.setState({
+          authFlag: false,
+        });
+      }
+    }
   };
+  // submitLogin = (e) => {
+  //   //prevent page from refresh
+  //   e.preventDefault();
+  //   const data = {
+  //     username: this.state.username,
+  //     password: this.state.password,
+  //   };
+  //   //set the with credentials to true
+  //   axios.defaults.withCredentials = true;
+  //   //make a post request with the user data
+  //   axios
+  //     .post("http://localhost:3001/loginrest", data)
+  //     .then((response) => {
+  //       console.log("Status Code : ", response.status);
+  //       if (response.status === 200) {
+  //         this.setState({
+  //           error: "",
+  //           authFlag: true,
+  //           jwt_token: response.data,
+  //         });
+  //         sessionStorage.setItem("typeofuser", "Restaurant");
+  //         sessionStorage.setItem("restaurantEmailForOrder", data.username);
+  //       } else {
+  //         this.setState({
+  //           error:
+  //             "<p style={{color: red}}>Please enter correct credentials</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct credentials" + e,
+  //       });
+  //     });
+  // };
   render() {
     let redirectVar = null;
+    if (this.state.authFlag) redirectVar = <Redirect to="/prof" />;
+    else redirectVar = <Redirect to="/restaurantlogin" />;
     // if (cookie.load("cookie")) redirectVar = <Redirect to="/prof" />;
-    if (this.state.jwt_token.length > 0) {
-      var decoded = jwt_decode(this.state.jwt_token.split(" ")[1]);
-      localStorage.setItem("token", this.state.jwt_token);
-      localStorage.setItem("user_id", decoded._id);
-      localStorage.setItem("username", decoded.username);
-      localStorage.setItem("type", decoded.type);
-      redirectVar = <Redirect to="/prof" />;
-    } else redirectVar = <Redirect to="/restaurantlogin" />;
+    // if (this.state.jwt_token.length > 0) {
+    //   var decoded = jwt_decode(this.state.jwt_token.split(" ")[1]);
+    //   localStorage.setItem("token", this.state.jwt_token);
+    //   localStorage.setItem("user_id", decoded._id);
+    //   localStorage.setItem("username", decoded.username);
+    //   localStorage.setItem("type", decoded.type);
+    //   redirectVar = <Redirect to="/prof" />;
+    // } else redirectVar = <Redirect to="/restaurantlogin" />;
     return (
       <div>
         {redirectVar}
@@ -86,13 +122,7 @@ class signupform extends Component {
             <h2>Restaurant Log In</h2>
             <p style={{ color: "red" }}>{this.state.error}</p>
             <p>
-              For Customer please click the link{" "}
-              <Link
-                to="/login"
-                onClick={() => this.props.dispatch(CustomerType())}
-              >
-                here
-              </Link>
+              For Customer please click the link <Link to="/login">here</Link>
             </p>
 
             <Form.Group controlId="formBasicEmail">
@@ -123,10 +153,6 @@ class signupform extends Component {
   }
 }
 
-const mapStateToProps = function (state) {
-  return {
-    getType: state.getType,
-  };
-};
-
-export default connect(mapStateToProps)(signupform);
+export default compose(
+  graphql(restLoginMutation, { name: "restLoginMutation" })
+)(signupform);

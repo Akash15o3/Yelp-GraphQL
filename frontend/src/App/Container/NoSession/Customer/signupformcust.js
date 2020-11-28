@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { connect } from "react-redux";
 import { RestaurantType } from "../../../../actions";
+import { graphql, compose } from "react-apollo";
+import { addCustomerMutation } from "../../../../mutation/mutation";
 class signupform extends Component {
   constructor(props) {
     super(props);
@@ -46,45 +48,66 @@ class signupform extends Component {
       email: e.target.value,
     });
   };
-  submitForm = (e) => {
+  submitForm = async (e) => {
     //prevent page from refresh
     e.preventDefault();
-    const data = {
-      customerID: this.state.customerID,
-      fname: this.state.fname,
-      lname: this.state.lname,
-      sname: this.state.sname,
-      email: this.state.email,
-      pass: this.state.pass,
-    };
-    //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    // make a post request with the user data
-    axios
-      .post("http://localhost:3001/signupcust", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            authFlag: true,
-          });
-          sessionStorage.setItem("customerNameForOrder", this.state.fname);
-          alert("Successfully Created! Please Conitnue to Login");
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
+    let mutationResponse = await this.props.addCustomerMutation({
+      variables: {
+        fname: this.state.fname,
+        lname: this.state.lname,
+        customerID: this.state.customerID,
+        email: this.state.email,
+        pass: this.state.pass,
+      },
+    });
+    let response = mutationResponse.data.addCustomer;
+    if (response) {
+      if (response.status === "200") {
+        console.log("Successfully added");
+      } else {
+        console.log("unsuccessful");
+      }
+    }
   };
+  // submitForm = (e) => {
+  //   //prevent page from refresh
+  //   e.preventDefault();
+  //   const data = {
+  //     customerID: this.state.customerID,
+  //     fname: this.state.fname,
+  //     lname: this.state.lname,
+  //     sname: this.state.sname,
+  //     email: this.state.email,
+  //     pass: this.state.pass,
+  //   };
+  //   //set the with credentials to true
+  //   axios.defaults.withCredentials = true;
+  //   // make a post request with the user data
+  //   axios
+  //     .post("http://localhost:3001/signupcust", data)
+  //     .then((response) => {
+  //       console.log("Status Code : ", response.status);
+  //       if (response.status === 200) {
+  //         this.setState({
+  //           error: "",
+  //           authFlag: true,
+  //         });
+  //         sessionStorage.setItem("customerNameForOrder", this.state.fname);
+  //         alert("Successfully Created! Please Conitnue to Login");
+  //       } else {
+  //         this.setState({
+  //           error:
+  //             "<p style={{color: red}}>Please enter correct credentials</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct credentials" + e,
+  //       });
+  //     });
+  // };
   render() {
     return (
       <div className=" container form-cont">
@@ -92,12 +115,7 @@ class signupform extends Component {
           <h2>Create New Account</h2>
           <p>
             For restaurant please click the link{" "}
-            <Link
-              to="/restaurantsignup"
-              onClick={() => this.props.dispatch(RestaurantType())}
-            >
-              here
-            </Link>{" "}
+            <Link to="/restaurantsignup">here</Link>{" "}
           </p>
           <Form.Group controlId="formGridFName">
             <Form.Label>Customer Id</Form.Label>
@@ -156,10 +174,6 @@ class signupform extends Component {
   }
 }
 
-const mapStateToProps = function (state) {
-  return {
-    getType: state.getType,
-  };
-};
-
-export default connect(mapStateToProps)(signupform);
+export default compose(
+  graphql(addCustomerMutation, { name: "addCustomerMutation" })
+)(signupform);

@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { connect } from "react-redux";
 import { CustomerType } from "../../../../actions";
-
+import { graphql, compose } from "react-apollo";
+import { addRestaurantMutation } from "../../../../mutation/mutation";
 class signupform extends Component {
   constructor(props) {
     super(props);
@@ -47,43 +48,64 @@ class signupform extends Component {
     });
   };
 
-  submitForm = (e) => {
+  submitForm = async (e) => {
     //prevent page from refresh
     e.preventDefault();
-    const data = {
-      restaurantID: this.state.restaurantID,
-      cname: this.state.cname,
-      location: this.state.location,
-      email: this.state.email,
-      pass: this.state.pass,
-    };
-    //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios
-      .post("http://localhost:3001/signuprest", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            authFlag: true,
-          });
-          alert("Successfully Created! Please Conitnue to Login");
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
+    let mutationResponse = await this.props.addRestaurantMutation({
+      variables: {
+        name: this.state.cname,
+        location: this.state.location,
+        email: this.state.email,
+        pass: this.state.pass,
+        restaurantID: this.state.restaurantID,
+      },
+    });
+    let response = mutationResponse.data.addRestaurant;
+    if (response) {
+      if (response.status === "200") {
+        alert("Successfully added");
+      } else {
+        alert("unsuccessful");
+      }
+    }
   };
+  // submitForm = (e) => {
+  //   //prevent page from refresh
+  //   e.preventDefault();
+  //   const data = {
+  //     restaurantID: this.state.restaurantID,
+  //     cname: this.state.cname,
+  //     location: this.state.location,
+  //     email: this.state.email,
+  //     pass: this.state.pass,
+  //   };
+  //   //set the with credentials to true
+  //   axios.defaults.withCredentials = true;
+  //   //make a post request with the user data
+  //   axios
+  //     .post("http://localhost:3001/signuprest", data)
+  //     .then((response) => {
+  //       console.log("Status Code : ", response.status);
+  //       if (response.status === 200) {
+  //         this.setState({
+  //           error: "",
+  //           authFlag: true,
+  //         });
+  //         alert("Successfully Created! Please Conitnue to Login");
+  //       } else {
+  //         this.setState({
+  //           error:
+  //             "<p style={{color: red}}>Please enter correct credentials</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct credentials" + e,
+  //       });
+  //     });
+  // };
 
   render() {
     return (
@@ -91,13 +113,7 @@ class signupform extends Component {
         <Form className="signup-form">
           <h2>Create New Account</h2>
           <p>
-            For Customer please click the link{" "}
-            <Link
-              to="/signup"
-              onClick={() => this.props.dispatch(CustomerType())}
-            >
-              here
-            </Link>
+            For Customer please click the link <Link to="/signup">here</Link>
           </p>
           <Form.Group controlId="formGridCName">
             <Form.Label>Restaurant ID</Form.Label>
@@ -156,10 +172,6 @@ class signupform extends Component {
   }
 }
 
-const mapStateToProps = function (state) {
-  return {
-    getType: state.getType,
-  };
-};
-
-export default connect(mapStateToProps)(signupform);
+export default compose(
+  graphql(addRestaurantMutation, { name: "addRestaurantMutation" })
+)(signupform);

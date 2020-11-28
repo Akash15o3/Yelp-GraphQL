@@ -9,6 +9,8 @@ import jwt_decode from "jwt-decode";
 // import { getFName } from "../../../../actions";
 import { getusernamecust, RestaurantType } from "../../../../actions";
 // import { getProfPic } from "../../../../actions";
+import { loginMutation } from "../../../../mutation/mutation";
+import { graphql, compose } from "react-apollo";
 class signupform extends Component {
   constructor(props) {
     super(props);
@@ -33,59 +35,88 @@ class signupform extends Component {
       password: e.target.value,
     });
   };
-
-  submitLogin = (e) => {
+  submitLogin = async (e) => {
     //prevent page from refresh
     e.preventDefault();
-    const data = {
-      username: this.state.username,
-      password: this.state.password,
-    };
-    //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios
-      .post("http://localhost:3001/logincust", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          sessionStorage.setItem("typeofuser", "Customer");
-          // getusernamecust = response.data[0].email;
-          // this.props.dispatch(getFName(response.data[0].First_Name));
-          // this.props.dispatch(getProfPic(response.data[0].prof_pic));
-          this.setState({
-            error: "",
-            authFlag: true,
-            jwt_token: response.data,
-          });
-          alert("Successful Login");
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
+    console.log(this.state);
+    let mutationResponse = await this.props.loginMutation({
+      variables: {
+        email: this.state.username,
+        pass: this.state.password,
+      },
+    });
+    console.log(mutationResponse);
+    let response = mutationResponse.data.login;
+    if (response) {
+      if (response.status === "200") {
+        console.log(response.message);
+        localStorage.setItem("_id", response.message);
+        sessionStorage.setItem("typeofuser", "Customer");
+        localStorage.setItem("LogFlag", true);
         this.setState({
-          error: "Please enter correct credentials" + e,
+          authFlag: true,
         });
-      });
+      } else {
+        this.setState({
+          authFlag: false,
+        });
+      }
+    }
   };
+  // submitLogin = (e) => {
+  //   //prevent page from refresh
+  //   e.preventDefault();
+  //   const data = {
+  //     username: this.state.username,
+  //     password: this.state.password,
+  //   };
+  //   //set the with credentials to true
+  //   axios.defaults.withCredentials = true;
+  //   //make a post request with the user data
+  //   axios
+  //     .post("http://localhost:3001/logincust", data)
+  //     .then((response) => {
+  //       console.log("Status Code : ", response.status);
+  //       if (response.status === 200) {
+  //         sessionStorage.setItem("typeofuser", "Customer");
+  //         // getusernamecust = response.data[0].email;
+  //         // this.props.dispatch(getFName(response.data[0].First_Name));
+  //         // this.props.dispatch(getProfPic(response.data[0].prof_pic));
+  //         this.setState({
+  //           error: "",
+  //           authFlag: true,
+  //           jwt_token: response.data,
+  //         });
+  //         alert("Successful Login");
+  //       } else {
+  //         this.setState({
+  //           error:
+  //             "<p style={{color: red}}>Please enter correct credentials</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct credentials" + e,
+  //       });
+  //     });
+  // };
 
   render() {
     let redirectVar = null;
-    console.log(cookie.load("cookie"));
+    if (this.state.authFlag) redirectVar = <Redirect to="/prof" />;
+    else redirectVar = <Redirect to="/login" />;
+    // console.log(cookie.load("cookie"));
     // if (cookie.load("cookie")) redirectVar = <Redirect to="/prof" />;
-    if (this.state.jwt_token.length > 0) {
-      var decoded = jwt_decode(this.state.jwt_token.split(" ")[1]);
-      localStorage.setItem("token", this.state.jwt_token);
-      localStorage.setItem("user_id", decoded._id);
-      localStorage.setItem("username", decoded.username);
-      localStorage.setItem("type", decoded.type);
-      redirectVar = <Redirect to="/prof" />;
-    } else redirectVar = <Redirect to="/login" />;
+    // if (this.state.jwt_token.length > 0) {
+    //   var decoded = jwt_decode(this.state.jwt_token.split(" ")[1]);
+    //   localStorage.setItem("token", this.state.jwt_token);
+    //   localStorage.setItem("user_id", decoded._id);
+    //   localStorage.setItem("username", decoded.username);
+    //   localStorage.setItem("type", decoded.type);
+    //   redirectVar = <Redirect to="/prof" />;
+    // } else redirectVar = <Redirect to="/login" />;
     // redirectVar = <Redirect to="/login" />;
     return (
       <div>
@@ -96,12 +127,7 @@ class signupform extends Component {
             <p style={{ color: "red" }}>{this.state.error}</p>
             <p>
               For restaurants please click the link{" "}
-              <Link
-                to="/restaurantlogin"
-                onClick={() => this.props.dispatch(RestaurantType())}
-              >
-                here
-              </Link>
+              <Link to="/restaurantlogin">here</Link>
             </p>
 
             <Form.Group controlId="formBasicEmail">
@@ -110,7 +136,6 @@ class signupform extends Component {
                 type="email"
                 placeholder="Enter Email"
                 onChange={this.usernameChangeHandler}
-                onClick={() => this.props.dispatch(getusernamecust())}
               />
             </Form.Group>
 
@@ -132,10 +157,6 @@ class signupform extends Component {
     );
   }
 }
-const mapStateToProps = function (state) {
-  return {
-    getType: state.getType,
-    getusernamecust: state.getusernamecust,
-  };
-};
-export default connect(mapStateToProps)(signupform);
+export default compose(graphql(loginMutation, { name: "loginMutation" }))(
+  signupform
+);

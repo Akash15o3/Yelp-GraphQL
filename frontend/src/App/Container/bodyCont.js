@@ -29,7 +29,7 @@ class bodyCont extends Component {
     var events;
     var message;
     // prof = <Profile />;
-    if (this.props.getType == "Customer") {
+    if (localStorage.getItem("typeofuser") == "Customer") {
       events = <Cust_Events />;
       orders = <CustOrder />;
       rest = <Rest />;
@@ -84,9 +84,4 @@ class bodyCont extends Component {
     );
   }
 }
-const mapStateToProps = function (state) {
-  return {
-    getType: state.getType,
-  };
-};
-export default connect(mapStateToProps)(bodyCont);
+export default bodyCont;

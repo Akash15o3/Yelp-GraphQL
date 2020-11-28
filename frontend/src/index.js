@@ -1,22 +1,37 @@
+// import React from "react";
+// import ReactDOM from "react-dom";
+// import "./index.css";
+// import App from "./App/App.js";
+// import { createStore } from "redux";
+// import allReducers from "./reducers";
+// import { Provider } from "react-redux";
+// // import registerServiceWorker from "./registerServiceWorker";
+// const Store = createStore(
+//   allReducers,
+//   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+// );
+// ReactDOM.render(
+//   <Provider store={Store}>
+//     <App />
+//   </Provider>,
+//   document.querySelector("#root")
+// );
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App/App.js";
-import { createStore } from "redux";
-import allReducers from "./reducers";
-import { Provider } from "react-redux";
-// import registerServiceWorker from "./registerServiceWorker";
-const Store = createStore(
-  allReducers,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+import App from "./App/App";
+import ApolloClient from "apollo-boost";
+import { ApolloProvider } from "react-apollo";
+
+const client = new ApolloClient({
+  uri: "http://localhost:3001/graphql",
+});
+
 ReactDOM.render(
-  <Provider store={Store}>
+  <ApolloProvider client={client}>
     <App />
-  </Provider>,
+  </ApolloProvider>,
   document.querySelector("#root")
 );
-
 // import * as serviceWorker from "./serviceWorker";
 
 // ReactDOM.render(<App />, document.getElementById("root"));

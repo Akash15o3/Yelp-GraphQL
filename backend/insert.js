@@ -105,60 +105,6 @@ var insert = class insert {
   }
 };
 
-// var insert = class insert {
-//   insert_cust(con, body, res) {
-
-//     console.log("Connected!");
-//     var sql =
-//       "INSERT INTO customerDetails (customerID,firstname,lastname, emailid, password) VALUES (";
-//     var sql1 =
-//       "'" +
-//       body.customerID +
-//       "','" +
-//       body.fname +
-//       "','" +
-//       body.lname +
-//       "','" +
-//       body.email +
-//       "','" +
-//       body.pass +
-//       "')";
-//     console.log(sql + sql1);
-//     con.query(sql + sql1, function (err, result) {
-//       if (err) throw err;
-//       console.log("1 record inserted" + result);
-//       res.writeHead(200, {
-//         "Content-Type": "text/plain",
-//       });
-
-//       res.end(JSON.stringify(result));
-//     });
-//   }
-
-//   insert_rest(con, body) {
-//     console.log("Connected!");
-//     var sql =
-//       "INSERT INTO restaurantDetails (restaurantID,name, password, emailid, location) VALUES (";
-//     var sql1 =
-//       "'" +
-//       body.restaurantID +
-//       "','" +
-//       body.cname +
-//       "','" +
-//       body.pass +
-//       "','" +
-//       body.email +
-//       "','" +
-//       body.location +
-//       "')";
-//     console.log(sql + sql1);
-//     con.query(sql + sql1, function (err, result) {
-//       if (err) throw err;
-//       console.log("1 record inserted");
-//     });
-//   }
-// };
-
 module.exports = {
   insert,
 };

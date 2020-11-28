@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 var signupRestSchema = new Schema(
   {
-    restaurantID: { type: String, required: true },
+    restaurantID: { type: String, required: false },
     name: { type: String, required: true },
     email: { type: String, required: true },
     pass: { type: String, required: true },
-    location: { type: String, required: true },
-    description: { type: String, required: true },
-    contact: { type: String, required: true },
-    timing: { type: String, required: true },
+    location: { type: String, required: false },
+    description: { type: String, required: false },
+    contact: { type: String, required: false },
+    timing: { type: String, required: false },
 
-    reviews: { type: String, required: true },
-    website: { type: String, required: true },
+    reviews: { type: String, required: false },
+    website: { type: String, required: false },
     prof_pic: { type: String, required: false },
     dish_pic: { type: String, required: false },
   },
