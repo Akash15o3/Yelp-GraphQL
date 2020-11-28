@@ -5,16 +5,24 @@ import EditDet from "./edit_det";
 class Contact extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { setShow: false };
+    this.state = { data: {}, setShow: false };
   }
 
   handleClose = () => {
-    this.props.getInfo();
+    // this.props.getInfo();
     this.setState({ setShow: false });
   };
   handleShow = () => {
     this.setState({ setShow: true });
   };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.data !== prevProps.data) {
+      this.setState({
+        data: this.props.data,
+      });
+    }
+  }
 
   render() {
     return (

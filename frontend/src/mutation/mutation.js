@@ -30,6 +30,51 @@ const loginMutation = gql`
   }
 `;
 
+const updateCustomerProfile = gql`
+  mutation updateCustomerProfile(
+    $_id: String
+    $fname: String
+    $lname: String
+    $customerID: String
+    $email: String
+    $pass: String
+    $dateofbirth: String
+    $city: String
+    $State: String
+    $country: String
+    $phonenumber: String
+    $nickname: String
+    $yelpingsince: String
+    $thingsilove: String
+    $about: String
+    $findmein: String
+    $myblog: String
+  ) {
+    updateCustomerProfile(
+      _id: $_id
+      fname: $fname
+      lname: $lname
+      customerID: $customerID
+      email: $email
+      pass: $pass
+      dateofbirth: $dateofbirth
+      city: $city
+      State: $State
+      country: $country
+      phonenumber: $phonenumber
+      nickname: $nickname
+      yelpingsince: $yelpingsince
+      thingsilove: $thingsilove
+      about: $about
+      findmein: $findmein
+      myblog: $myblog
+    ) {
+      message
+      status
+    }
+  }
+`;
+
 const addRestaurantMutation = gql`
   mutation addRestaurant(
     $name: String
@@ -65,4 +110,5 @@ export {
   addRestaurantMutation,
   restLoginMutation,
   loginMutation,
+  updateCustomerProfile,
 };

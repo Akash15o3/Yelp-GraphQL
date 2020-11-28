@@ -5,7 +5,7 @@ const Dish = require("../Models/dishModel");
 const Order = require("../Models/orderDishModel");
 const { login } = require("../Mutations/login");
 const { RestLogin } = require("../Mutations/loginRest");
-
+const { custUpdate } = require("../Mutations/custUpdate");
 const {
   GraphQLObjectType,
   GraphQLString,
@@ -118,7 +118,7 @@ const RootQuery = new GraphQLObjectType({
       type: CustomerType,
       args: { _id: { type: GraphQLID } },
       async resolve(parent, args) {
-        let user = await Cust_Profile.findById(args._id);
+        let user = Cust_Profile.findById(args._id);
         if (user) {
           return user;
         }
@@ -212,6 +212,33 @@ const Mutation = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return RestLogin(args);
+      },
+    },
+
+    updateCustomerProfile: {
+      type: StatusType,
+      args: {
+        _id: { type: GraphQLString },
+        customerID: { type: GraphQLString },
+        fname: { type: GraphQLString },
+        lname: { type: GraphQLString },
+        email: { type: GraphQLString },
+        pass: { type: GraphQLString },
+        dateofbirth: { type: GraphQLString },
+        city: { type: GraphQLString },
+        State: { type: GraphQLString },
+        country: { type: GraphQLString },
+        phonenumber: { type: GraphQLString },
+        yelpingsince: { type: GraphQLString },
+        thingsilove: { type: GraphQLString },
+        about: { type: GraphQLString },
+        findmein: { type: GraphQLString },
+        myblog: { type: GraphQLString },
+        nickname: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        //console.log(args);
+        return custUpdate(args);
       },
     },
   },

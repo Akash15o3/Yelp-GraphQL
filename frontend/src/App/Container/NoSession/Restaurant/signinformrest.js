@@ -53,8 +53,8 @@ class signupform extends Component {
         // localStorage.setItem('_id', response.message);
         // localStorage.setItem('type', 'Company');
         localStorage.setItem("LogFlag", true);
-        sessionStorage.setItem("typeofuser", "Restaurant");
-        sessionStorage.setItem("restaurantEmailForOrder", response.message);
+        localStorage.setItem("typeofuser", "Restaurant");
+        localStorage.setItem("_id", response.message);
         this.setState({
           authFlag: true,
         });

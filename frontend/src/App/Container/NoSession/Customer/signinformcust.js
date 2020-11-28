@@ -51,7 +51,7 @@ class signupform extends Component {
       if (response.status === "200") {
         console.log(response.message);
         localStorage.setItem("_id", response.message);
-        sessionStorage.setItem("typeofuser", "Customer");
+        localStorage.setItem("typeofuser", "Customer");
         localStorage.setItem("LogFlag", true);
         this.setState({
           authFlag: true,
