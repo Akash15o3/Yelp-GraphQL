@@ -7,7 +7,9 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import GoogleMapReact from "google-map-react";
 import Rest from "./allrest";
-
+import { getAllRestaurantQuery } from "../../../../queries/queries";
+import { getRestByLocation } from "../../../../queries/queries";
+import { graphql, compose } from "react-apollo";
 import axios from "axios";
 
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
@@ -25,9 +27,9 @@ class RestDes extends React.Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.clearFlag = this.clearFlag.bind(this);
-    this.nextPage = this.nextPage.bind(this);
-    this.previousPage = this.previousPage.bind(this);
+    // this.clearFlag = this.clearFlag.bind(this);
+    // this.nextPage = this.nextPage.bind(this);
+    // this.previousPage = this.previousPage.bind(this);
   }
   static defaultProps = {
     center: {
@@ -36,6 +38,25 @@ class RestDes extends React.Component {
     },
     zoom: 11,
   };
+  // componentDidMount() {
+  //   console.log(this.props.data);
+  //   if (this.props.data.allRestaurant) {
+  //     let props = this.props.data.allRestaurant;
+  //     this.setState({
+  //       data: props,
+  //     });
+  //   }
+  // }
+  componentDidUpdate(prevProps) {
+    // console.log("All" + this.props.data.allRestaurant[0]._id);
+
+    if (this.props.data !== prevProps.data) {
+      let props = this.props.data.allRestaurantByLocation;
+      this.setState({
+        data: props,
+      });
+    }
+  }
   handleChange = (e) => {
     this.setState({
       location: e.target.value,
@@ -43,102 +64,107 @@ class RestDes extends React.Component {
     console.log(e.target.value, "city", this.state.location);
   };
 
-  getInfo = () => {
-    axios.defaults.headers.common["authorization"] = localStorage.getItem(
-      "token"
-    );
-    axios
-      .get(
-        "http://localhost:3001/allrestaurant/getAllRest?limit=" +
-          this.state.limit +
-          "&skip=" +
-          this.state.skip
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            data: response.data,
-          });
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
-  };
+  // getInfo = () => {
+  //   axios.defaults.headers.common["authorization"] = localStorage.getItem(
+  //     "token"
+  //   );
+  //   axios
+  //     .get(
+  //       "http://localhost:3001/allrestaurant/getAllRest?limit=" +
+  //         this.state.limit +
+  //         "&skip=" +
+  //         this.state.skip
+  //     )
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         this.setState({
+  //           error: "",
+  //           data: response.data,
+  //         });
+  //       } else {
+  //         this.setState({
+  //           error:
+  //             "<p style={{color: red}}>Please enter correct credentials</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct credentials" + e,
+  //       });
+  //     });
+  // };
 
   handleSubmit(e1) {
-    console.log("city", this.state.city);
+    console.log("city", this.state.location);
 
     // console.log(this.fnameChange, this.fnameChange.firstname);
-    axios.defaults.withCredentials = true;
-    axios.defaults.headers.common["authorization"] = localStorage.getItem(
-      "token"
-    );
+    // axios.defaults.withCredentials = true;
+    // axios.defaults.headers.common["authorization"] = localStorage.getItem(
+    //   "token"
+    // );
 
-    axios
-      .get(
-        "http://localhost:3001/allrestaurant/allrestsearch?location=" +
-          this.state.location
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            dataListSearch: response.data,
-          });
-          // this.getInfo();
-          // console.log("Dish Data", response.data);
-          console.log("Test", this.state.dataListSearch);
-        } else {
-          this.setState({
-            error: "<p style={{color: red}}>Please enter correct Email</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct Email" + e,
-        });
-      });
+    // axios
+    //   .get(
+    //     "http://localhost:3001/allrestaurant/allrestsearch?location=" +
+    //       this.state.location
+    //   )
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    //       this.setState({
+    //         error: "",
+    //         dataListSearch: response.data,
+    //       });
+    //       // this.getInfo();
+    //       // console.log("Dish Data", response.data);
+    //       console.log("Test", this.state.dataListSearch);
+    //     } else {
+    //       this.setState({
+    //         error: "<p style={{color: red}}>Please enter correct Email</p>",
+    //         authFlag: false,
+    //       });
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     this.setState({
+    //       error: "Please enter correct Email" + e,
+    //     });
+    //   });
+
+    let props = this.props.data.allRestaurantByLocation;
+    this.setState({
+      data: props,
+    });
     this.setState({ filterflag: 1 });
-    e1.preventDefault();
+    // e1.preventDefault();
   }
 
-  clearFlag(e) {
-    this.setState({ filterflag: 0 });
-    this.getInfo();
-    e.preventDefault();
-  }
+  // clearFlag(e) {
+  //   this.setState({ filterflag: 0 });
+  //   this.getInfo();
+  //   e.preventDefault();
+  // }
 
-  nextPage() {
-    console.log("In The Next Function", this.state.skip, this.state.limit);
+  // nextPage() {
+  //   console.log("In The Next Function", this.state.skip, this.state.limit);
 
-    this.state.skip = this.state.skip + this.state.limit;
-    console.log("After Next Function", this.state.skip, this.state.limit);
-    this.getInfo();
-  }
-  previousPage() {
-    console.log("In The Previous Function", this.state.skip, this.state.limit);
-    if (this.state.skip > 0) {
-      this.state.skip = this.state.skip - this.state.limit;
+  //   this.state.skip = this.state.skip + this.state.limit;
+  //   console.log("After Next Function", this.state.skip, this.state.limit);
+  //   this.getInfo();
+  // }
+  // previousPage() {
+  //   console.log("In The Previous Function", this.state.skip, this.state.limit);
+  //   if (this.state.skip > 0) {
+  //     this.state.skip = this.state.skip - this.state.limit;
 
-      this.getInfo();
-    }
-  }
+  //     this.getInfo();
+  //   }
+  // }
 
-  componentDidMount() {
-    this.getInfo();
-  }
+  // componentDidMount() {
+  //   this.getInfo();
+  // }
 
   render() {
     const filterflag = this.state.filterflag;
@@ -163,12 +189,14 @@ class RestDes extends React.Component {
               email={email}
               location={location}
               name={name}
+              description={description}
+              contact={contact}
             />
           );
         }
       );
     } else if (filterflag === 1) {
-      var printRest = this.state.dataListSearch.map(
+      var printRest = this.state.data.map(
         ({
           restaurantID,
           name,
@@ -188,6 +216,8 @@ class RestDes extends React.Component {
               email={email}
               location={location}
               name={name}
+              description={description}
+              contact={contact}
             />
           );
         }
@@ -216,6 +246,8 @@ class RestDes extends React.Component {
         </Button>
         <br></br>
 
+        {printRest}
+
         <div style={{ height: "100vh", width: "100%" }}>
           <GoogleMapReact
             bootstrapURLKeys={{
@@ -227,17 +259,21 @@ class RestDes extends React.Component {
             <AnyReactComponent lat={37.3352} lng={-121.8811} text="My Marker" />
           </GoogleMapReact>
         </div>
-
-        {printRest}
-        <div style={{ "margin-top": "30px" }}>
-          <Button class="fa-pull-right" onClick={this.previousPage}>
-            Previous Page
-          </Button>
-          <Button onClick={this.nextPage}> Next Page </Button>
-        </div>
       </Container>
     );
   }
 }
 
-export default RestDes;
+export default compose(
+  // graphql(getAllRestaurantQuery, {
+  //   options: {
+  //     variables: { name: "" },
+  //   },
+  // }),
+  graphql(getRestByLocation, {
+    options: {
+      // fetchPolicy: "cache-and-network",
+      variables: { location: "" },
+    },
+  })
+)(RestDes);

@@ -49,7 +49,7 @@ const RestProfileModel = new GraphQLObjectType({
     email: { type: GraphQLString },
     pass: { type: GraphQLString },
     website: { type: GraphQLString },
-    descriptoon: { type: GraphQLString },
+    description: { type: GraphQLString },
     restaurantID: { type: GraphQLString },
     contact: { type: GraphQLString },
     timing: { type: GraphQLString },
@@ -131,6 +131,30 @@ const RootQuery = new GraphQLObjectType({
         let user = await Rest_Profile.findById(args._id);
         if (user) {
           return user;
+        }
+      },
+    },
+    allRestaurant: {
+      type: new GraphQLList(RestProfileModel),
+      args: { name: { type: GraphQLString } },
+      async resolve(parent, args) {
+        let restaurantList = await Rest_Profile.find({});
+        return restaurantList;
+      },
+    },
+    allRestaurantByLocation: {
+      type: new GraphQLList(RestProfileModel),
+      args: { location: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log(args);
+        if (args.location === "") {
+          let restaurantList = await Rest_Profile.find({});
+          return restaurantList;
+        } else {
+          let restaurantList = await Rest_Profile.find({
+            location: args.location,
+          });
+          return restaurantList;
         }
       },
     },
@@ -239,6 +263,49 @@ const Mutation = new GraphQLObjectType({
       async resolve(parent, args) {
         //console.log(args);
         return custUpdate(args);
+      },
+    },
+
+    updateRestaurantProfile: {
+      type: StatusType,
+      args: {
+        _id: { type: GraphQLString },
+        restaurantID: { type: GraphQLString },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        email: { type: GraphQLString },
+        pass: { type: GraphQLString },
+        description: { type: GraphQLString },
+        contact: { type: GraphQLString },
+        timing: { type: GraphQLString },
+        reviews: { type: GraphQLString },
+        website: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        var updaterest = {
+          restaurantID: args.restaurantID,
+          name: args.name,
+          location: args.location,
+          email: args.email,
+          pass: args.pass,
+          description: args.description,
+          contact: args.contact,
+          timing: args.timing,
+          reviews: args.reviews,
+          website: args.website,
+        };
+        Rest_Profile.updateOne(
+          { email: args.email },
+          { $set: updaterest },
+          (error, user) => {
+            if (error) {
+              return { status: 500, message: "INTERNAL_SERVER_ERROR" };
+            } else {
+              return { status: 200, message: "UPDATED" };
+            }
+          }
+        );
+        //console.log(args);
       },
     },
   },

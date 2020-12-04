@@ -154,5 +154,9 @@ class signupform extends Component {
 }
 
 export default compose(
-  graphql(restLoginMutation, { name: "restLoginMutation" })
+  graphql(
+    restLoginMutation,
+    // { options: { fetchPolicy: "cache-and-network" } },
+    { name: "restLoginMutation" }
+  )
 )(signupform);

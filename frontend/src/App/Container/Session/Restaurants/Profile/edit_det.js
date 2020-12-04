@@ -2,7 +2,8 @@ import React from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from "axios";
 import cookie from "react-cookies";
-
+import { updateRestaurantProfile } from "../../../../../mutation/mutation";
+import { graphql, compose } from "react-apollo";
 class edit extends React.Component {
   constructor(props) {
     super(props);
@@ -13,7 +14,7 @@ class edit extends React.Component {
       id: "",
       rest_name: "",
       location: "",
-      des: "",
+      description: "",
       timing: "",
       contact: "",
       website: "",
@@ -43,7 +44,7 @@ class edit extends React.Component {
 
   desc = (e) => {
     this.setState({
-      des: e.target.value,
+      description: e.target.value,
     });
   };
 
@@ -75,51 +76,34 @@ class edit extends React.Component {
       reviews: e.target.value,
     });
   };
-  updatePers = (e) => {
+  updatePers = async (e) => {
     e.preventDefault();
-    const data = {
-      rest_name: this.state.rest_name,
-      location: this.state.location,
-      des: this.state.des,
-      timing: this.state.timing,
-      contact: this.state.contact,
-      website: this.state.website,
-      email: this.state.email,
-      reviews: this.state.reviews,
-
-      id: this.state.id,
-      prof_pic: this.state.prof_pic,
-      dish_pic: this.state.dish_pic,
-    };
     //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    axios.defaults.headers.common["authorization"] = localStorage.getItem(
-      "token"
-    );
-    //make a post request with the user data
-    axios
-      .post("http://localhost:3001/restaurant_profile/updateRest", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            authFlag: true,
-          });
-          this.handleClose();
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
+    let mutationResponse = await this.props.updateRestaurantProfile({
+      variables: {
+        rest_name: this.state.rest_name,
+        location: this.state.location,
+        description: this.state.description,
+        timing: this.state.timing,
+        contact: this.state.contact,
+        website: this.state.website,
+        email: this.state.email,
+        reviews: this.state.reviews,
+
+        id: this.state.id,
+
+        _id: localStorage.getItem("_id"),
+      },
+    });
+    let response = mutationResponse.data.updateRestaurantProfile;
+    if (response) {
+      if (response.status === "200") {
+        alert("Successfully Updated");
+        this.handleClose();
+      } else {
+        console.log("unsuccessful");
+      }
+    }
   };
   handleClose = () => {
     this.props.handleClose();
@@ -127,129 +111,21 @@ class edit extends React.Component {
   };
   handleShow = () => this.setState({ setShow: true });
 
-  handleFileUpload = (event) => {
-    let data = new FormData();
-    console.log("File Data --", event.target.files[0]);
-    data.append("file", event.target.files[0]);
-    data.append("name", "prof_pic");
-    console.log("File Data After Append --", data);
-    // console.log("path:", System.IO.Path.GetFilename(event.target.value));
-    this.state.backendnProfName = event.target.value;
-    this.state.backendnProfName = this.state.backendnProfName.replace(
-      /C:\\fakepath\\/,
-      ""
-    );
-    console.log("+++++++++++++++", this.state.backendnProfName);
-    axios
-      .post("http://localhost:3001/files", data)
-      .then((response) => {
-        console.log("profile pic upload response", data);
-        this.setState({
-          prof_pic: response.data,
-        });
-        let data2 = {
-          prof_pic: this.state.backendnProfName,
-          restaurantemail: localStorage.getItem("username"),
-        };
-        axios
-          .post("http://localhost:3001/updateProfPicRest", data2)
-          .then((response) => {
-            console.log("Status Code : ", response.status);
-            if (response.status === 200) {
-              this.setState({
-                error: "",
-                authFlag: true,
-              });
-            } else {
-              this.setState({
-                error:
-                  "<p style={{color: red}}>Please enter correct credentials</p>",
-                authFlag: false,
-              });
-            }
-          })
-          .catch((e) => {
-            this.setState({
-              error: "Please enter correct credentials" + e,
-            });
-          });
-      })
-      .catch((error) => console.log("error " + error));
-  };
-
-  handleDishUpload = (event) => {
-    let data = new FormData();
-    console.log("File Data --", event.target.files[0]);
-    data.append("file", event.target.files[0]);
-    data.append("name", "dish_pic");
-    console.log("File Data After Append --", data);
-    // console.log("path:", System.IO.Path.GetFilename(event.target.value));
-    this.state.backendnProfName = event.target.value;
-    this.state.backendnProfName = this.state.backendnProfName.replace(
-      /C:\\fakepath\\/,
-      ""
-    );
-    console.log("+++++++++++++++", this.state.backendnProfName);
-    axios
-      .post("http://localhost:3001/files", data)
-      .then((response) => {
-        console.log("profile pic upload response", data);
-        this.setState({
-          dish_pic: response.data,
-        });
-        let data3 = {
-          dish_pic: this.state.backendnProfName,
-          restaurantemail: localStorage.getItem("username"),
-        };
-        axios
-          .post("http://localhost:3001/updateDishPicRest", data3)
-          .then((response) => {
-            console.log("Status Code : ", response.status);
-            if (response.status === 200) {
-              this.setState({
-                error: "",
-                authFlag: true,
-              });
-            } else {
-              this.setState({
-                error:
-                  "<p style={{color: red}}>Please enter correct credentials</p>",
-                authFlag: false,
-              });
-            }
-          })
-          .catch((e) => {
-            this.setState({
-              error: "Please enter correct credentials" + e,
-            });
-          });
-      })
-      .catch((error) => console.log("error " + error));
-  };
-
-  componentDidMount() {
-    this.setState({
-      setShow: this.props.show,
-      rest_name: this.props.data[0].name,
-      location: this.props.data[0].location,
-      des: this.props.data[0].description,
-      timing: this.props.data[0].timing,
-      contact: this.props.data[0].contact,
-      website: this.props.data[0].website,
-      email: this.props.data[0].email,
-      id: this.props.data[0].restaurantID,
-      reviews: this.props.data[0].reviews,
-      prof_pic: this.props.data[0].prof_pic,
-      dish_pic: this.props.data[0].dish_pic,
-    });
-  }
   componentDidUpdate(prevProps) {
     if (prevProps.show != this.props.show) {
       this.setState({
         setShow: this.props.show,
+        rest_name: this.props.data.name,
+        location: this.props.data.location,
+        description: this.props.data.description,
+        timing: this.props.data.timing,
+        contact: this.props.data.contact,
+        website: this.props.data.website,
+        email: this.props.data.email,
+        id: this.props.data.restaurantID,
+        reviews: this.props.data.reviews,
       });
     }
-    console.log("prof pic name", this.state.prof_pic);
   }
 
   render() {
@@ -313,22 +189,8 @@ class edit extends React.Component {
               <Form.Control
                 as="textarea"
                 rows="3"
-                value={this.state.des}
+                value={this.state.description}
                 onChange={this.desc}
-              />
-            </Form.Group>
-            <Form.Group controlId="formFile">
-              <Form.Control
-                name="prof_pic"
-                type="file"
-                onChange={this.handleFileUpload}
-              />
-            </Form.Group>
-            <Form.Group controlId="formFile">
-              <Form.Control
-                name="dish_pic"
-                type="file"
-                onChange={this.handleDishUpload}
               />
             </Form.Group>
           </Form>
@@ -346,7 +208,9 @@ class edit extends React.Component {
   }
 }
 
-export default edit;
+export default compose(
+  graphql(updateRestaurantProfile, { name: "updateRestaurantProfile" })
+)(edit);
 // <Form.Group controlId="formEmail">
 //               <Form.Label>Email address</Form.Label>
 //               <Form.Control

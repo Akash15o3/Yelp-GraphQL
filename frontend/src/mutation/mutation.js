@@ -75,6 +75,39 @@ const updateCustomerProfile = gql`
   }
 `;
 
+const updateRestaurantProfile = gql`
+  mutation updateRestaurantProfile(
+    $_id: String
+    $restaurantID: String
+    $name: String
+    $email: String
+    $location: String
+    $pass: String
+    $description: String
+    $contact: String
+    $timing: String
+    $reviews: String
+    $website: String
+  ) {
+    updateRestaurantProfile(
+      _id: $_id
+      name: $name
+      restaurantID: $restaurantID
+      location: $location
+      email: $email
+      pass: $pass
+      description: $description
+      contact: $contact
+      timing: $timing
+      reviews: $reviews
+      website: $website
+    ) {
+      message
+      status
+    }
+  }
+`;
+
 const addRestaurantMutation = gql`
   mutation addRestaurant(
     $name: String
@@ -111,4 +144,5 @@ export {
   restLoginMutation,
   loginMutation,
   updateCustomerProfile,
+  updateRestaurantProfile,
 };

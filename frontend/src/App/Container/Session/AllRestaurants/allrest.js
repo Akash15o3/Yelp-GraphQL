@@ -15,6 +15,8 @@ class Rest extends React.Component {
               <h5 className="mbottom-5">{this.props.name}</h5>
             </Link>
             <h6 className="mbottom-5">{this.props.location}</h6>
+            <h6 className="mbottom-5">{this.props.description}</h6>
+            <h6 className="mbottom-5">{this.props.contact}</h6>
           </Container>
         </Col>
       </Row>

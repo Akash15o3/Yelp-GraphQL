@@ -127,6 +127,7 @@ class Primary extends React.Component {
 export default compose(
   graphql(getCustomerQuery, {
     options: {
+      // fetchPolicy: "cache-and-network",
       variables: { _id: localStorage.getItem("_id") },
     },
   })

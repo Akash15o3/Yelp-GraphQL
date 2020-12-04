@@ -54,36 +54,36 @@ class Contact extends React.Component {
   };
 
   getdishInfo = () => {
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios.defaults.headers.common["authorization"] = localStorage.getItem(
-      "token"
-    );
-    axios
-      .get(
-        "http://localhost:3001/restaurant_profile/getDish?restaurantemail=" +
-          localStorage.getItem("username")
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            dataList: response.data,
-          });
-          console.log("Dish Data", response.data);
-          //console.log("Test",this.);
-        } else {
-          this.setState({
-            error: "<p style={{color: red}}>Please enter correct Email</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct Email" + e,
-        });
-      });
+    // axios.defaults.withCredentials = true;
+    // //make a post request with the user data
+    // axios.defaults.headers.common["authorization"] = localStorage.getItem(
+    //   "token"
+    // );
+    // axios
+    //   .get(
+    //     "http://localhost:3001/restaurant_profile/getDish?restaurantemail=" +
+    //       localStorage.getItem("username")
+    //   )
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    //       this.setState({
+    //         error: "",
+    //         dataList: response.data,
+    //       });
+    //       console.log("Dish Data", response.data);
+    //       //console.log("Test",this.);
+    //     } else {
+    //       this.setState({
+    //         error: "<p style={{color: red}}>Please enter correct Email</p>",
+    //         authFlag: false,
+    //       });
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     this.setState({
+    //       error: "Please enter correct Email" + e,
+    //     });
+    //   });
   };
   onSubmit(e) {
     e.preventDefault();
@@ -100,19 +100,19 @@ class Contact extends React.Component {
     // axios.defaults.headers.common["authorization"] = localStorage.getItem(
     //   "token"
     // );
-    axios
-      .post("http://localhost:3001/addDish", data)
-      .then((response) => {
-        this.setState({
-          success: true,
-        });
-        this.getdishInfo();
-      })
-      .catch((error) => {
-        this.setState({
-          message: error.response.data,
-        });
-      });
+    // axios
+    //   .post("http://localhost:3001/addDish", data)
+    //   .then((response) => {
+    //     this.setState({
+    //       success: true,
+    //     });
+    //     this.getdishInfo();
+    //   })
+    //   .catch((error) => {
+    //     this.setState({
+    //       message: error.response.data,
+    //     });
+    //   });
   }
 
   componentWillMount() {
@@ -122,16 +122,16 @@ class Contact extends React.Component {
   componentDidMount() {
     this.setState({
       setShow: this.props.show,
-      dish_title: this.props.data[0].dish_title,
-      dish_cat: this.props.data[0].dish_cat,
-      dish_des: this.props.data[0].dish_des,
-      dish_price: this.props.data[0].dish_price,
-      restaurantemail: this.props.data[0].restaurantemail,
+      // dish_title: this.props.data[0].dish_title,
+      // dish_cat: this.props.data[0].dish_cat,
+      // dish_des: this.props.data[0].dish_des,
+      // dish_price: this.props.data[0].dish_price,
+      // restaurantemail: this.props.data[0].restaurantemail,
       //   restaurantname: this.props.data[0].name,
     });
   }
   handleClose = () => {
-    this.props.getInfo();
+    // this.props.getInfo();
 
     this.setState({ setShow: false });
   };

@@ -19,8 +19,7 @@ class RestOrder extends React.Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChangeFilter = this.handleChangeFilter.bind(this);
-    this.nextPage = this.nextPage.bind(this);
-    this.previousPage = this.previousPage.bind(this);
+
     this.clearFlag = this.clearFlag.bind(this);
   }
 
@@ -153,22 +152,6 @@ class RestOrder extends React.Component {
     //e.preventDefault();
     console.log("Value of Time", e);
   };
-
-  nextPage() {
-    console.log("In The Next Function", this.state.skip, this.state.limit);
-
-    this.state.skip = this.state.skip + this.state.limit;
-    console.log("After Next Function", this.state.skip, this.state.limit);
-    this.getRestOrder();
-  }
-  previousPage() {
-    console.log("In The Previous Function", this.state.skip, this.state.limit);
-    if (this.state.skip > 0) {
-      this.state.skip = this.state.skip - this.state.limit;
-
-      this.getRestOrder();
-    }
-  }
 
   componentDidMount() {
     this.getRestOrder();
@@ -360,13 +343,6 @@ class RestOrder extends React.Component {
         </Button>
         <br></br>
         <div>{display}</div>
-
-        <div style={{ "margin-top": "30px" }}>
-          <Button class="fa-pull-right" onClick={this.previousPage}>
-            Previous Page
-          </Button>
-          <Button onClick={this.nextPage}> Next Page </Button>
-        </div>
       </div>
     );
   }
