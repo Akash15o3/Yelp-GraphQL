@@ -13,7 +13,7 @@ class Primary extends React.Component {
     super(props);
     this.state = {
       data: [],
-      prof_pic: "file",
+      prof_pic: "",
     };
   }
   async componentDidMount() {
@@ -53,9 +53,16 @@ class Primary extends React.Component {
     console.log(this.state.data);
     var pic = "/profile.png";
     return (
-      <Container key={this.state.data._id}>
+      <Container>
         <Row className={"padding-bottom-15 background"}>
           <Col xl={11} style={{ width: 100 + "%" }}>
+            <Col xl={1}>
+              <img
+                src={pic}
+                alt="user pic"
+                style={{ width: 100 + "px", marginTop: 20 + "px" }}
+              />
+            </Col>
             <Container>
               <Row className="top-10 mleft-10">
                 <Container>
@@ -77,14 +84,21 @@ class Primary extends React.Component {
                       <h6 className="small-grey">
                         Date Of Birth:{this.state.data.dateofbirth}
                       </h6>
+                    </Row>
+                    <Row>
                       <h6 className="small-grey">
-                        , City:{this.state.data.city}
+                        Contact Info:{this.state.data.phonenumber}
                       </h6>
+                    </Row>
+                  </Col>
+                  <Col xl={7}>
+                    <Row>
                       <h6 className="small-grey">
-                        , State:{this.state.data.State}
+                        City:{this.state.data.city}
                       </h6>
+                      <h6 className="small-grey">, {this.state.data.State}</h6>
                       <h6 className="small-grey">
-                        , Country:{this.state.data.country}
+                        , {this.state.data.country}
                       </h6>
                     </Row>
                     <Row>
@@ -106,9 +120,17 @@ class Primary extends React.Component {
                       <h6 className="small-grey">
                         Things I Love:{this.state.data.thingsilove}
                       </h6>
+                    </Row>
+                  </Col>
+                  <Col xl={5}>
+                    <Row>
                       <h6 className="small-grey">
                         Find Me In:{this.state.data.findmein}
                       </h6>
+                    </Row>
+                  </Col>
+                  <Col xl={5}>
+                    <Row>
                       <h6 className="small-grey">
                         My Blog:{this.state.data.myblog}
                       </h6>

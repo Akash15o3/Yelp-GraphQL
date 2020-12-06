@@ -203,6 +203,10 @@ class RestOrder extends React.Component {
                                 <option value="Preparing">Preparing</option>
                                 <option value="On The Way">On The Way</option>
                                 <option value="Delivered">Delivered</option>
+                                <option value="Pick up Ready">
+                                  Pick up Ready
+                                </option>
+                                <option value="Picked Up">Picked Up</option>
                               </select>
                             </h6>
                           </Row>

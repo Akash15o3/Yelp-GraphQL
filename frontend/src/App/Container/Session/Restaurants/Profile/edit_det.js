@@ -4,6 +4,7 @@ import axios from "axios";
 import cookie from "react-cookies";
 import { updateRestaurantProfile } from "../../../../../mutation/mutation";
 import { graphql, compose } from "react-apollo";
+import { getRestaurantQuery } from "../../../../../queries/queries";
 class edit extends React.Component {
   constructor(props) {
     super(props);
@@ -12,7 +13,7 @@ class edit extends React.Component {
       prof_pic: "",
       dish_pic: "",
       id: "",
-      rest_name: "",
+      name: "",
       location: "",
       description: "",
       timing: "",
@@ -32,7 +33,7 @@ class edit extends React.Component {
   };
   restName = (e) => {
     this.setState({
-      rest_name: e.target.value,
+      name: e.target.value,
     });
   };
 
@@ -81,7 +82,7 @@ class edit extends React.Component {
     //set the with credentials to true
     let mutationResponse = await this.props.updateRestaurantProfile({
       variables: {
-        rest_name: this.state.rest_name,
+        name: this.state.name,
         location: this.state.location,
         description: this.state.description,
         timing: this.state.timing,
@@ -94,7 +95,14 @@ class edit extends React.Component {
 
         _id: localStorage.getItem("_id"),
       },
+      refetchQueries: [
+        {
+          query: getRestaurantQuery,
+          variables: { email: localStorage.getItem("_id") },
+        },
+      ],
     });
+
     let response = mutationResponse.data.updateRestaurantProfile;
     if (response) {
       if (response.status === "200") {
@@ -104,6 +112,7 @@ class edit extends React.Component {
         console.log("unsuccessful");
       }
     }
+    this.setState({ setShow: false });
   };
   handleClose = () => {
     this.props.handleClose();
@@ -115,7 +124,7 @@ class edit extends React.Component {
     if (prevProps.show != this.props.show) {
       this.setState({
         setShow: this.props.show,
-        rest_name: this.props.data.name,
+        name: this.props.data.name,
         location: this.props.data.location,
         description: this.props.data.description,
         timing: this.props.data.timing,
@@ -142,7 +151,7 @@ class edit extends React.Component {
               <Form.Control
                 type="text"
                 placeholder="Enter Restaurant Name"
-                value={this.state.rest_name}
+                value={this.state.name}
                 onChange={this.restName}
               />
             </Form.Group>

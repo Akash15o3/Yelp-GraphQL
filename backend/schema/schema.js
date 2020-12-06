@@ -189,6 +189,28 @@ const RootQuery = new GraphQLObjectType({
         }
       },
     },
+    customerOrderByStatus: {
+      type: new GraphQLList(dishOrder),
+      args: {
+        customerEmailForOrder: { type: GraphQLString },
+        status: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        console.log(
+          "values for searching",
+          args.restaurantEmailForOrder,
+          args.status
+        );
+        let user = await Order.find({
+          customerEmailForOrder: args.customerEmailForOrder,
+          status: args.status,
+        });
+        if (user) {
+          console.log("dish order from restaurant", user);
+          return user;
+        }
+      },
+    },
 
     customerOrder: {
       type: new GraphQLList(dishOrder),
@@ -204,11 +226,28 @@ const RootQuery = new GraphQLObjectType({
       },
     },
 
-    allRestaurant: {
-      type: new GraphQLList(RestProfileModel),
-      args: { name: { type: GraphQLString } },
+    getCustomerOrderDesc: {
+      type: new GraphQLList(dishOrder),
+      args: { customerEmailForOrder: { type: GraphQLString } },
       async resolve(parent, args) {
-        let restaurantList = await Rest_Profile.find({});
+        var mysort = { timestamp: -1 };
+        let user = await Order.find({
+          customerEmailForOrder: args.customerEmailForOrder,
+        }).sort(mysort);
+        if (user) {
+          console.log("dish order from restaurant", user);
+          return user;
+        }
+      },
+    },
+
+    getAllRestaurantQuery: {
+      type: new GraphQLList(RestProfileModel),
+      args: { location: { type: GraphQLString } },
+      async resolve(parent, args) {
+        let restaurantList = await Rest_Profile.find({
+          location: args.location,
+        });
         return restaurantList;
       },
     },
@@ -216,16 +255,8 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(RestProfileModel),
       args: { location: { type: GraphQLString } },
       async resolve(parent, args) {
-        console.log(args);
-        if (args.location === "") {
-          let restaurantList = await Rest_Profile.find({});
-          return restaurantList;
-        } else {
-          let restaurantList = await Rest_Profile.find({
-            location: args.location,
-          });
-          return restaurantList;
-        }
+        let restaurantList = await Rest_Profile.find({});
+        return restaurantList;
       },
     },
   },
@@ -417,10 +448,10 @@ const Mutation = new GraphQLObjectType({
       args: {
         _id: { type: GraphQLString },
         restaurantID: { type: GraphQLString },
-        rest_name: { type: GraphQLString },
+        name: { type: GraphQLString },
         location: { type: GraphQLString },
         email: { type: GraphQLString },
-        pass: { type: GraphQLString },
+        // pass: { type: GraphQLString },
         description: { type: GraphQLString },
         contact: { type: GraphQLString },
         timing: { type: GraphQLString },
@@ -430,10 +461,10 @@ const Mutation = new GraphQLObjectType({
       async resolve(parent, args) {
         var updaterest = {
           restaurantID: args.restaurantID,
-          name: args.rest_name,
+          name: args.name,
           location: args.location,
           email: args.email,
-          pass: args.pass,
+          // pass: args.pass,
           description: args.description,
           contact: args.contact,
           timing: args.timing,
@@ -467,6 +498,31 @@ const Mutation = new GraphQLObjectType({
         };
         Order.findOneAndUpdate(
           { _id: args._id },
+          { $set: updaterest },
+          (error, user) => {
+            if (error) {
+              return { status: 500, message: "INTERNAL_SERVER_ERROR" };
+            } else {
+              return { status: 200, message: "UPDATED" };
+            }
+          }
+        );
+        //console.log(args);
+      },
+    },
+
+    addReview: {
+      type: StatusType,
+      args: {
+        email: { type: GraphQLString },
+        reviews: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        var updaterest = {
+          reviews: args.reviews,
+        };
+        Rest_Profile.findOneAndUpdate(
+          { email: args.email },
           { $set: updaterest },
           (error, user) => {
             if (error) {

@@ -97,6 +97,28 @@ const getRestaurantOrderByStatus = gql`
   }
 `;
 
+const getCustomerOrderByStatus = gql`
+  query($customerEmailForOrder: String, $status: String) {
+    customerOrderByStatus(
+      customerEmailForOrder: $customerEmailForOrder
+      status: $status
+    ) {
+      _id
+      customerEmailForOrder
+      restaurantEmailForOrder
+      customerNameForOrder
+      restaurantNameForOrder
+      dishOrder
+      status
+      deliveryType
+      pickupStatus
+      deliveryStatus
+      timeOfOrder
+      timestamp
+    }
+  }
+`;
+
 const getCustomerOrder = gql`
   query($customerEmailForOrder: String) {
     customerOrder(customerEmailForOrder: $customerEmailForOrder) {
@@ -115,9 +137,27 @@ const getCustomerOrder = gql`
   }
 `;
 
+const getCustomerOrderDesc = gql`
+  query($customerEmailForOrder: String) {
+    getCustomerOrderDesc(customerEmailForOrder: $customerEmailForOrder) {
+      customerEmailForOrder
+      restaurantEmailForOrder
+      customerNameForOrder
+      restaurantNameForOrder
+      dishOrder
+      status
+      deliveryType
+      pickupStatus
+      deliveryStatus
+      timeOfOrder
+      timestamp
+    }
+  }
+`;
+
 const getAllRestaurantQuery = gql`
-  query($name: String) {
-    allRestaurant(name: $name) {
+  query($location: String) {
+    getAllRestaurantQuery(location: $location) {
       _id
       restaurantID
       pass
@@ -163,5 +203,6 @@ export {
   getDishQuery,
   getCustomerOrder,
   getRestaurantOrderByStatus,
-  // getRestaurantOrderByStatus,
+  getCustomerOrderByStatus,
+  getCustomerOrderDesc,
 };

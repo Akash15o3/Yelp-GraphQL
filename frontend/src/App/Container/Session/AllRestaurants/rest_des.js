@@ -38,15 +38,6 @@ class RestDes extends React.Component {
     },
     zoom: 11,
   };
-  // componentDidMount() {
-  //   console.log(this.props.data);
-  //   if (this.props.data.allRestaurant) {
-  //     let props = this.props.data.allRestaurant;
-  //     this.setState({
-  //       data: props,
-  //     });
-  //   }
-  // }
 
   async componentDidMount() {
     const { data } = await this.props.client.query({
@@ -61,92 +52,30 @@ class RestDes extends React.Component {
     console.log("using apollo client", this.state.data);
   }
 
-  // componentDidUpdate(prevProps) {
-  //   // console.log("All" + this.props.data.allRestaurant[0]._id);
-
-  //   if (this.props.data !== prevProps.data) {
-  //     let props = this.props.data.allRestaurantByLocation;
-  //     this.setState({
-  //       data: props,
-  //     });
-  //   }
-  // }
-  // handleChange = (e) => {
-  //   this.setState({
-  //     location: e.target.value,
-  //   });
-  //   console.log(e.target.value, "city", this.state.location);
-  // };
-
-  handleSubmit(e1) {
-    console.log("city", this.state.location);
-
-    // console.log(this.fnameChange, this.fnameChange.firstname);
-    // axios.defaults.withCredentials = true;
-    // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-    //   "token"
-    // );
-
-    // axios
-    //   .get(
-    //     "http://localhost:3001/allrestaurant/allrestsearch?location=" +
-    //       this.state.location
-    //   )
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       this.setState({
-    //         error: "",
-    //         dataListSearch: response.data,
-    //       });
-    //       // this.getInfo();
-    //       // console.log("Dish Data", response.data);
-    //       console.log("Test", this.state.dataListSearch);
-    //     } else {
-    //       this.setState({
-    //         error: "<p style={{color: red}}>Please enter correct Email</p>",
-    //         authFlag: false,
-    //       });
-    //     }
-    //   })
-    //   .catch((e) => {
-    //     this.setState({
-    //       error: "Please enter correct Email" + e,
-    //     });
-    //   });
-
-    let props = this.props.data.allRestaurantByLocation;
+  handleChange = (e) => {
     this.setState({
-      data: props,
+      location: e.target.value,
     });
-    this.setState({ filterflag: 1 });
-    // e1.preventDefault();
-  }
+    console.log(e.target.value, "state", this.state.status);
+  };
 
-  // clearFlag(e) {
-  //   this.setState({ filterflag: 0 });
-  //   this.getInfo();
-  //   e.preventDefault();
-  // }
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("handle submit");
 
-  // nextPage() {
-  //   console.log("In The Next Function", this.state.skip, this.state.limit);
-
-  //   this.state.skip = this.state.skip + this.state.limit;
-  //   console.log("After Next Function", this.state.skip, this.state.limit);
-  //   this.getInfo();
-  // }
-  // previousPage() {
-  //   console.log("In The Previous Function", this.state.skip, this.state.limit);
-  //   if (this.state.skip > 0) {
-  //     this.state.skip = this.state.skip - this.state.limit;
-
-  //     this.getInfo();
-  //   }
-  // }
-
-  // componentDidMount() {
-  //   this.getInfo();
-  // }
+    const { data } = await this.props.client.query({
+      query: getAllRestaurantQuery,
+      variables: {
+        location: this.state.location,
+      },
+      fetchPolicy: "no-cache",
+    });
+    this.setState({
+      dataListSearch: data.getAllRestaurantQuery,
+      filterflag: 1,
+    });
+    console.log("using apollo client", this.state.dataListSearch);
+  };
 
   render() {
     const filterflag = this.state.filterflag;
@@ -178,7 +107,7 @@ class RestDes extends React.Component {
         }
       );
     } else if (filterflag === 1) {
-      var printRest = this.state.data.map(
+      var printRest = this.state.dataListSearch.map(
         ({
           restaurantID,
           name,

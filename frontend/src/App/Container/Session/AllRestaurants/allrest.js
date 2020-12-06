@@ -5,10 +5,7 @@ import { Link } from "react-router-dom";
 class Rest extends React.Component {
   render() {
     return (
-      <Row
-        key={this.props.id}
-        className={"top-10 background job-listing " + this.props.showJob}
-      >
+      <Row key={this.props.id} className={"top-10 background job-listing "}>
         <Col xl={10}>
           <Container>
             <Link to={`/rest_prof/` + this.props.email}>

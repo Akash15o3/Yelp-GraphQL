@@ -158,112 +158,8 @@ class edit extends React.Component {
         console.log("unsuccessful");
       }
     }
+    this.setState({ setShow: false });
   };
-
-  // updatePers = (e) => {
-  //   e.preventDefault();
-  //   const data = {
-  //     fname: this.state.fname,
-  //     lname: this.state.lname,
-  //     dateofbirth: this.state.dateofbirth,
-  //     city: this.state.city,
-  //     State: this.state.State,
-  //     country: this.state.country,
-  //     phonenumber: this.state.phonenumber,
-  //     nickname: this.state.nickname,
-  //     yelpingsince: this.state.yelpingsince,
-  //     thingsilove: this.state.thingsilove,
-  //     about: this.state.about,
-  //     findmein: this.state.findmein,
-  //     myblog: this.state.myblog,
-  //     email: this.state.email,
-  //     pass: this.state.pass,
-  //     customerID: this.state.customerID,
-  //     prof_pic: this.state.prof_pic,
-  //   };
-  //   //set the with credentials to true
-  //   axios.defaults.withCredentials = true;
-  //   axios.defaults.headers.common["authorization"] = localStorage.getItem(
-  //     "token"
-  //   );
-  //   //make a post request with the user data
-  //   axios
-  //     .post("http://localhost:3001/cust_profile/updatePersonal", data)
-  //     .then((response) => {
-  //       console.log("Status Code : ", response.status);
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           authFlag: true,
-  //         });
-  //         this.handleClose();
-  //       } else {
-  //         this.setState({
-  //           error:
-  //             "<p style={{color: red}}>Please enter correct credentials</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Please enter correct credentials" + e,
-  //       });
-  //     });
-  // };
-
-  // handleFileUpload = (event) => {
-  //   let data = new FormData();
-  //   console.log("File Data --", event.target.files[0]);
-  //   data.append("file", event.target.files[0]);
-  //   data.append("name", "prof_pic");
-  //   console.log("File Data After Append --", data);
-  //   // console.log("path:", System.IO.Path.GetFilename(event.target.value));
-  //   this.state.backendnProfName = event.target.value;
-  //   this.state.backendnProfName = this.state.backendnProfName.replace(
-  //     /C:\\fakepath\\/,
-  //     ""
-  //   );
-  //   console.log("+++++++++++++++", this.state.backendnProfName);
-  //   axios
-  //     .post("http://localhost:3001/files", data)
-  //     .then((response) => {
-  //       console.log("profile pic upload response", data);
-  //       this.setState({
-  //         prof_pic: response.data,
-  //       });
-  //       let data2 = {
-  //         prof_pic: this.state.backendnProfName,
-  //         customeremail: localStorage.getItem("username"),
-  //       };
-  //       // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-  //       //   "token"
-  //       // );
-  //       axios
-  //         .post("http://localhost:3001/updateProfPic", data2)
-  //         .then((response) => {
-  //           console.log("Status Code : ", response.status);
-  //           if (response.status === 200) {
-  //             this.setState({
-  //               error: "",
-  //               authFlag: true,
-  //             });
-  //           } else {
-  //             this.setState({
-  //               error:
-  //                 "<p style={{color: red}}>Please enter correct credentials</p>",
-  //               authFlag: false,
-  //             });
-  //           }
-  //         })
-  //         .catch((e) => {
-  //           this.setState({
-  //             error: "Please enter correct credentials" + e,
-  //           });
-  //         });
-  //     })
-  //     .catch((error) => console.log("error " + error));
-  // };
 
   handleClose = () => {
     this.props.handleClose();
@@ -294,38 +190,6 @@ class edit extends React.Component {
         // prof_pic: this.props.data.prof_pic,
       });
   }
-
-  // componentDidMount() {
-  //   this.setState({
-  //     setShow: this.props.show,
-  //     pass: this.props.data[0].pass,
-  //     fname: this.props.data[0].fname,
-  //     lname: this.props.data[0].lname,
-  //     dateofbirth: this.props.data[0].dateofbirth,
-  //     city: this.props.data[0].city,
-  //     State: this.props.data[0].State,
-  //     country: this.props.data[0].country,
-  //     phonenumber: this.props.data[0].phonenumber,
-  //     nickname: this.props.data[0].nickname,
-  //     yelpingsince: this.props.data[0].yelpingsince,
-  //     thingsilove: this.props.data[0].thingsilove,
-  //     about: this.props.data[0].about,
-  //     findmein: this.props.data[0].findmein,
-  //     myblog: this.props.data[0].myblog,
-  //     customerID: this.props.data[0].customerID,
-  //     email: this.props.data[0].email,
-  //     prof_pic: this.props.data[0].prof_pic,
-  //   });
-
-  //   console.log("prof pic name", this.state.prof_pic);
-  // }
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.show != this.props.show) {
-  //     this.setState({
-  //       setShow: this.props.show,
-  //     });
-  //   }
-  // }
 
   render() {
     console.log(this.state.data);

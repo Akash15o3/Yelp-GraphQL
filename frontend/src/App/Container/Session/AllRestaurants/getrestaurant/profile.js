@@ -66,14 +66,30 @@ class Rest_Profile extends React.Component {
   }
 
   render() {
+    var pic = "/profile.png";
     return (
       <Container style={{ width: 80 + "%" }}>
         <Row>
           <Col xl={4}>
+            <img
+              src={pic}
+              alt="user pic"
+              style={{ width: 100 + "px", marginTop: 20 + "px" }}
+            />
+          </Col>
+          <Col xl={4}>
             <Row
               className="all-row"
               style={{ textAlign: "center", marginTop: 10 + "px" }}
-            ></Row>
+            >
+              <h2>Restaurant Name : {this.state.data.name}</h2>
+            </Row>
+            <Row
+              className="all-row"
+              style={{ textAlign: "center", marginTop: 10 + "px" }}
+            >
+              Restaurant emailid : {this.state.data.email}
+            </Row>
             <Row className="all-row"></Row>
             <Row className="all-row">
               <Container className="background top-10 padding-all skills">

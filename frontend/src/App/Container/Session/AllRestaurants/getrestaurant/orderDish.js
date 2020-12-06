@@ -4,6 +4,7 @@ import axios from "axios";
 import cookie from "react-cookies";
 import Dish from "./dish";
 import { addOrderMutation } from "../../../../../mutation/mutation";
+import { addReview } from "../../../../../mutation/mutation";
 import { graphql, compose } from "react-apollo";
 class Order extends React.Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class Order extends React.Component {
       setShow: false,
       Review: "",
     };
+    this.Review = this.Review.bind(this);
   }
 
   orderNow = async (deliveryType) => {
@@ -39,105 +41,41 @@ class Order extends React.Component {
     let response = mutationResponse.data.addOrderMutation;
     if (response) {
       if (response.status === "200") {
-        alert("Successfully Updated");
         this.handleClose();
       } else {
         console.log("unsuccessful");
       }
     }
+    alert("Food Ordered");
   };
-  // orderNow(deliveryType) {
-  //   // e.preventDefault();
-  //   axios.defaults.withCredentials = true;
-  //   var orderTime = new Date();
-  //   alert("Your food is ordered. Visit My Orders to review");
-  //   const orderData = {
-  //     restaurantEmailForOrder: sessionStorage.getItem(
-  //       "restaurantEmailForOrder"
-  //     ),
-  //     customerEmailForOrder: sessionStorage.getItem("customerEmailForOrder"),
-  //     dishOrder: JSON.parse(sessionStorage.getItem("dishOrder")),
-  //     customerNameForOrder: sessionStorage.getItem("customerNameForOrder"),
-  //     restaurantNameForOrder: sessionStorage.getItem("restaurantNameForOrder"),
-  //     status: "Received",
-  //     deliveryType: deliveryType,
-  //     pickupStatus: "",
-  //     deliveryStatus: "",
-  //     timeOfOrder: orderTime,
-  //   };
-  //   axios.defaults.headers.common["authorization"] = localStorage.getItem(
-  //     "token"
-  //   );
+  onSubmitReview = async (e) => {
+    e.preventDefault();
+    console.log(this.state.Review);
+    //set the with credentials to true
+    let mutationResponse = await this.props.addReview({
+      variables: {
+        email: localStorage.getItem("eee"),
 
-  //   axios
-  //     .post("http://localhost:3001/insertOrder", orderData)
-  //     .then((response) => {
-  //       console.log("Status Code : ", response.status);
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           authFlag: true,
-  //         });
-  //       } else {
-  //         this.setState({
-  //           error:
-  //             "<p style={{color: red}}>Please enter correct credentials</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Error while ordering" + e,
-  //       });
-  //     });
-  // }
+        reviews: this.state.Review,
+      },
+    });
+    let response = mutationResponse.data.addReview;
+    if (response) {
+      if (response.status === "200") {
+        alert("Review Added");
+      } else {
+        console.log("unsuccessful");
+      }
+    }
+    alert("Review Added");
+  };
 
-  // Review = (e) => {
-  //   this.setState({
-  //     Review: e.target.value,
-  //   });
-  //   console.log(e.target.value, "Review");
-  // };
-
-  // onSubmitReview(e) {
-  //   // e.preventDefault();
-  //   axios.defaults.withCredentials = true;
-  //   const data = {
-  //     restaurantEmailForOrder: sessionStorage.getItem(
-  //       "restaurantEmailForOrder"
-  //     ),
-  //     customerEmailForOrder: sessionStorage.getItem("customerEmailForOrder"),
-  //     customerNameForOrder: sessionStorage.getItem("customerNameForOrder"),
-  //     Review: this.state.Review,
-  //   };
-  //   axios
-  //     .post("http://localhost:3001/insertReview", data)
-  //     .then((response) => {
-  //       console.log("Status Code : ", response.status);
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           authFlag: true,
-  //         });
-  //         alert("review added");
-  //       } else {
-  //         this.setState({
-  //           error:
-  //             "<p style={{color: red}}>Please enter correct credentials</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Error while ordering" + e,
-  //       });
-  //     });
-  // }
-  // componentDidMount() {
-  //   // this.orderNow();
-  // }
+  Review = (e) => {
+    this.setState({
+      Review: e.target.value,
+    });
+    console.log(e.target.value, "Review");
+  };
 
   render() {
     return (
@@ -159,7 +97,7 @@ class Order extends React.Component {
           Click Here for Delivery
         </Button>
         <br></br>
-        <form onSubmit={() => this.onSubmitReview(this.Review)}>
+        <form onSubmit={this.onSubmitReview}>
           <div style={{ width: "500px" }} class="form-group">
             <input
               type="text"
@@ -177,8 +115,9 @@ class Order extends React.Component {
     );
   }
 }
-export default compose(graphql(addOrderMutation, { name: "addOrderMutation" }))(
-  Order
-);
+export default compose(
+  graphql(addOrderMutation, { name: "addOrderMutation" }),
+  graphql(addReview, { name: "addReview" })
+)(Order);
 
 // export default Order;

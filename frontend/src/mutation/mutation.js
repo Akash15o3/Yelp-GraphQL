@@ -91,7 +91,6 @@ const updateRestaurantProfile = gql`
     $name: String
     $email: String
     $location: String
-    $pass: String
     $description: String
     $contact: String
     $timing: String
@@ -104,7 +103,7 @@ const updateRestaurantProfile = gql`
       restaurantID: $restaurantID
       location: $location
       email: $email
-      pass: $pass
+
       description: $description
       contact: $contact
       timing: $timing
@@ -120,6 +119,15 @@ const updateRestaurantProfile = gql`
 const updateOrderStatus = gql`
   mutation updateOrderStatus($_id: String, $status: String) {
     updateOrderStatus(_id: $_id, status: $status) {
+      message
+      status
+    }
+  }
+`;
+
+const addReview = gql`
+  mutation addReview($email: String, $reviews: String) {
+    addReview(email: $email, reviews: $reviews) {
       message
       status
     }
@@ -211,4 +219,5 @@ export {
   addDishMutation,
   addOrderMutation,
   updateOrderStatus,
+  addReview,
 };

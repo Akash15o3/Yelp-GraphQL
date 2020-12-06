@@ -3,7 +3,10 @@ import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import cookie from "react-cookies";
 import { getCustomerOrder } from "../../../../../queries/queries";
-import { graphql, compose } from "react-apollo";
+import { getCustomerOrderByStatus } from "../../../../../queries/queries";
+import { getCustomerOrderDesc } from "../../../../../queries/queries";
+
+import { graphql, compose, withApollo } from "react-apollo";
 class CustOrder extends React.Component {
   constructor(props) {
     super(props);
@@ -15,6 +18,7 @@ class CustOrder extends React.Component {
       skip: 0,
       filterflag: 0,
       status: "",
+      data: [],
     };
     // this.handleSubmit = this.handleSubmit.bind(this);
     // this.doDesc = this.doDesc.bind(this);
@@ -23,7 +27,18 @@ class CustOrder extends React.Component {
     // this.nextPage = this.nextPage.bind(this);
     // this.previousPage = this.previousPage.bind(this);
   }
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getCustomerOrder,
 
+      variables: { customerEmailForOrder: localStorage.getItem("_id") },
+      fetchPolicy: "no-cache",
+    });
+
+    this.setState({ data: data.customerOrder });
+
+    console.log("using apollo client", this.state.data);
+  }
   handleChangeFilter = (e) => {
     this.setState({
       status: e.target.value,
@@ -31,70 +46,46 @@ class CustOrder extends React.Component {
     console.log(e.target.value, "state", this.state.status);
   };
 
-  componentDidMount() {
-    console.log("datadata Profile ", this.props.data);
-    if (this.props.data.customerOrder) {
-      let props = this.props.data.customerOrder;
-      this.setState({
-        data: props,
-      });
-    }
-  }
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("handle submit");
+    console.log(
+      "Values for handle submit",
+      localStorage.getItem("_id"),
+      this.state.status
+    );
+    const { data } = await this.props.client.query({
+      query: getCustomerOrderByStatus,
+      variables: {
+        customerEmailForOrder: localStorage.getItem("_id"),
+        status: this.state.status,
+      },
+      fetchPolicy: "no-cache",
+    });
+    this.setState({
+      dataListSearch: data.customerOrderByStatus,
+      filterflag: 1,
+    });
+    console.log("using apollo client", this.state.data);
+  };
 
-  componentDidUpdate(prevProps) {
-    console.log("Data Update in profile ", this.props.data);
-    if (this.props.data !== prevProps.data) {
-      let props = this.props.data.customerOrder;
-      this.setState({
-        data: props,
-      });
-    }
-  }
+  doDesc = async (e) => {
+    e.preventDefault();
+    console.log("handle submit");
 
-  // handleSubmit(e1) {
-  //   console.log("Status", this.state.status);
-  //   // console.log(this.fnameChange, this.fnameChange.firstname);
-  //   axios.defaults.withCredentials = true;
-
-  //   axios
-  //     .get(
-  //       "http://localhost:3001/orderbystatuscustomer?status=" +
-  //         this.state.status +
-  //         "&customerEmailForOrder=" +
-  //         localStorage.getItem("username")
-  //     )
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           dataListSearch: response.data,
-  //         });
-  //         // this.getRestOrder();
-  //         // console.log("Dish Data", response.data);
-  //         console.log("Test", this.state.dataListSearch);
-  //       } else {
-  //         this.setState({
-  //           error: "<p style={{color: red}}>Please enter correct Email</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Please enter correct Email" + e,
-  //       });
-  //     });
-  //   // this.setState({ filterflag: 1 });
-  //   this.state.filterflag = 1;
-  //   console.log("filterflag after submit", this.state.filterflag);
-  //   e1.preventDefault();
-  // }
-
-  // clearFlag(e) {
-  //   this.setState({ filterflag: 0 });
-  //   this.getCustOrder();
-  //   e.preventDefault();
-  // }
+    const { data } = await this.props.client.query({
+      query: getCustomerOrderDesc,
+      variables: {
+        customerEmailForOrder: localStorage.getItem("_id"),
+      },
+      fetchPolicy: "no-cache",
+    });
+    this.setState({
+      dataList: data.getCustomerOrderDesc,
+      filterflag: 2,
+    });
+    console.log("using apollo client", this.state.data);
+  };
 
   // doDesc(e) {
   //   axios.defaults.withCredentials = true;
@@ -135,70 +126,10 @@ class CustOrder extends React.Component {
   //     });
   // }
 
-  // getCustOrder = () => {
-  //   // e.preventDefault();
-  //   axios.defaults.withCredentials = true;
-
-  //   const orderData = {
-  //     customerEmailForOrder: localStorage.getItem("username"),
-  //   };
-
-  //   axios
-  //     .get(
-  //       "http://localhost:3001/getCustOrder?customerEmailForOrder=" +
-  //         orderData.customerEmailForOrder +
-  //         "&limit=" +
-  //         this.state.limit +
-  //         "&skip=" +
-  //         this.state.skip
-  //     )
-  //     .then((response) => {
-  //       console.log("Status Code : ", response.status);
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           dataList: response.data,
-  //         });
-  //         // console.log("Order Data of customers", dataList);
-  //       } else {
-  //         this.setState({
-  //           error:
-  //             "<p style={{color: red}}>Please enter correct credentials</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Error while ordering" + e,
-  //       });
-  //     });
-  // };
-
-  // nextPage() {
-  //   console.log("In The Next Function", this.state.skip, this.state.limit);
-
-  //   this.state.skip = this.state.skip + this.state.limit;
-  //   console.log("After Next Function", this.state.skip, this.state.limit);
-  //   this.getCustOrder();
-  // }
-  // previousPage() {
-  //   console.log("In The Previous Function", this.state.skip, this.state.limit);
-  //   if (this.state.skip > 0) {
-  //     this.state.skip = this.state.skip - this.state.limit;
-
-  //     this.getCustOrder();
-  //   }
-  // }
-
-  // componentDidMount() {
-  //   this.getCustOrder();
-  // }
-
   render() {
     const filterflag = this.state.filterflag;
     if (filterflag === 0) {
-      var display = this.state.dataList.map(
+      var display = this.state.data.map(
         ({
           customerEmailForOrder,
           restaurantEmailForOrder,
@@ -321,6 +252,68 @@ class CustOrder extends React.Component {
           );
         }
       );
+    } else if (filterflag === 2) {
+      var display = this.state.dataList.map(
+        ({
+          customerEmailForOrder,
+          restaurantEmailForOrder,
+          customerNameForOrder,
+          restaurantNameForOrder,
+          dishOrder,
+          status,
+          deliveryType,
+          pickupStatus,
+          deliveryStatus,
+          timeOfOrder,
+        }) => {
+          return (
+            <Container>
+              <Row className={"padding-bottom-15 background"}>
+                <Col xl={11} style={{ width: 100 + "%" }}>
+                  <Container>
+                    <Row className="top-10 mleft-10">
+                      <Container>
+                        <h3>Restaurant Name : {restaurantNameForOrder}</h3>
+                      </Container>
+                    </Row>
+                    <Row className="mleft-10">
+                      <Container>
+                        <Col xl={7}>
+                          <Row>
+                            <h6 className="small-grey">
+                              EmailID of Restaurant: {restaurantEmailForOrder}
+                            </h6>
+                          </Row>
+                          <Row>
+                            <h6 className="small-grey">
+                              Status of Order : {status}
+                            </h6>
+                          </Row>
+                          <Row>
+                            <h6 className="small-grey">
+                              Delivery Type : {deliveryType}
+                            </h6>
+                          </Row>
+                          <Row>
+                            <h6 className="small-grey">
+                              Dishes Ordered : {dishOrder}
+                            </h6>
+                          </Row>
+                          <Row>
+                            <h6 className="small-grey">
+                              Time of Order : {timeOfOrder}
+                            </h6>
+                          </Row>
+                        </Col>
+                      </Container>
+                    </Row>
+                  </Container>
+                </Col>
+              </Row>
+            </Container>
+          );
+        }
+      );
     }
 
     return (
@@ -346,7 +339,7 @@ class CustOrder extends React.Component {
           Clear Search
         </Button>
         <br></br>
-        <h4>Sort By Time Of Order (By default Ascending)</h4>
+        <h4>Sort By Time Of Order</h4>
 
         <br></br>
         <Button variant="danger" onClick={this.doDesc}>
@@ -359,11 +352,5 @@ class CustOrder extends React.Component {
     );
   }
 }
-export default compose(
-  graphql(getCustomerOrder, {
-    options: {
-      // fetchPolicy: "cache-and-network",
-      variables: { customerEmailForOrder: localStorage.getItem("_id") },
-    },
-  })
-)(CustOrder);
+
+export default withApollo(CustOrder);
