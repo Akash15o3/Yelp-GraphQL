@@ -5,7 +5,7 @@ import Contact from "./contact";
 import axios from "axios";
 import cookie from "react-cookies";
 import { getRestaurantQuery } from "../../../../../queries/queries";
-import { graphql, compose } from "react-apollo";
+import { graphql, compose, withApollo } from "react-apollo";
 class Primary extends React.Component {
   constructor(props) {
     super(props);
@@ -17,25 +17,38 @@ class Primary extends React.Component {
     };
   }
 
-  componentDidMount() {
-    console.log("datadata Profile ", this.props.data);
-    if (this.props.data.restaurant) {
-      let props = this.props.data.restaurant;
-      this.setState({
-        data: props,
-      });
-    }
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getRestaurantQuery,
+
+      variables: { email: localStorage.getItem("_id") },
+      fetchPolicy: "no-cache",
+    });
+
+    this.setState({ data: data.restaurant });
+
+    console.log("using apollo client", this.state.data);
   }
 
-  componentDidUpdate(prevProps) {
-    console.log("Data Update in profile ", this.props.data);
-    if (this.props.data !== prevProps.data) {
-      let props = this.props.data.restaurant;
-      this.setState({
-        data: props,
-      });
-    }
-  }
+  // componentDidMount() {
+  //   console.log("datadata Profile ", this.props.data.email);
+  //   if (this.props.data.restaurant) {
+  //     let props = this.props.data.restaurant;
+  //     this.setState({
+  //       data: props,
+  //     });
+  //   }
+  // }
+
+  // componentDidUpdate(prevProps) {
+  //   console.log("Data Update in profile ", this.props.data);
+  //   if (this.props.data !== prevProps.data) {
+  //     let props = this.props.data.restaurant;
+  //     this.setState({
+  //       data: props,
+  //     });
+  //   }
+  // }
 
   render() {
     var pic;
@@ -48,7 +61,7 @@ class Primary extends React.Component {
     }
 
     return (
-      <Container key={this.state.data._id}>
+      <Container>
         <Row className={"padding-bottom-15 background"}>
           <Col xl={11} style={{ width: 100 + "%" }}>
             <Col xl={1}>
@@ -118,11 +131,12 @@ class Primary extends React.Component {
   }
 }
 
-export default compose(
-  graphql(getRestaurantQuery, {
-    options: {
-      // fetchPolicy: "cache-and-network",
-      variables: { _id: localStorage.getItem("_id") },
-    },
-  })
-)(Primary);
+export default withApollo(Primary);
+// compose(
+//   graphql(getRestaurantQuery, {
+//     options: {
+//       // fetchPolicy: "cache-and-network",
+//       variables: { email: localStorage.getItem("_id") },
+//     },
+//   })
+// )

@@ -9,7 +9,7 @@ import GoogleMapReact from "google-map-react";
 import Rest from "./allrest";
 import { getAllRestaurantQuery } from "../../../../queries/queries";
 import { getRestByLocation } from "../../../../queries/queries";
-import { graphql, compose } from "react-apollo";
+import { graphql, compose, withApollo } from "react-apollo";
 import axios from "axios";
 
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
@@ -25,8 +25,8 @@ class RestDes extends React.Component {
       location: "",
       filterflag: 0,
     };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    // this.handleSubmit = this.handleSubmit.bind(this);
+    // this.handleChange = this.handleChange.bind(this);
     // this.clearFlag = this.clearFlag.bind(this);
     // this.nextPage = this.nextPage.bind(this);
     // this.previousPage = this.previousPage.bind(this);
@@ -47,53 +47,35 @@ class RestDes extends React.Component {
   //     });
   //   }
   // }
-  componentDidUpdate(prevProps) {
-    // console.log("All" + this.props.data.allRestaurant[0]._id);
 
-    if (this.props.data !== prevProps.data) {
-      let props = this.props.data.allRestaurantByLocation;
-      this.setState({
-        data: props,
-      });
-    }
-  }
-  handleChange = (e) => {
-    this.setState({
-      location: e.target.value,
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getRestByLocation,
+
+      variables: { location: "" },
+      fetchPolicy: "no-cache",
     });
-    console.log(e.target.value, "city", this.state.location);
-  };
 
-  // getInfo = () => {
-  //   axios.defaults.headers.common["authorization"] = localStorage.getItem(
-  //     "token"
-  //   );
-  //   axios
-  //     .get(
-  //       "http://localhost:3001/allrestaurant/getAllRest?limit=" +
-  //         this.state.limit +
-  //         "&skip=" +
-  //         this.state.skip
-  //     )
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         this.setState({
-  //           error: "",
-  //           data: response.data,
-  //         });
-  //       } else {
-  //         this.setState({
-  //           error:
-  //             "<p style={{color: red}}>Please enter correct credentials</p>",
-  //           authFlag: false,
-  //         });
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       this.setState({
-  //         error: "Please enter correct credentials" + e,
-  //       });
+    this.setState({ data: data.allRestaurantByLocation });
+
+    console.log("using apollo client", this.state.data);
+  }
+
+  // componentDidUpdate(prevProps) {
+  //   // console.log("All" + this.props.data.allRestaurant[0]._id);
+
+  //   if (this.props.data !== prevProps.data) {
+  //     let props = this.props.data.allRestaurantByLocation;
+  //     this.setState({
+  //       data: props,
   //     });
+  //   }
+  // }
+  // handleChange = (e) => {
+  //   this.setState({
+  //     location: e.target.value,
+  //   });
+  //   console.log(e.target.value, "city", this.state.location);
   // };
 
   handleSubmit(e1) {
@@ -264,16 +246,4 @@ class RestDes extends React.Component {
   }
 }
 
-export default compose(
-  // graphql(getAllRestaurantQuery, {
-  //   options: {
-  //     variables: { name: "" },
-  //   },
-  // }),
-  graphql(getRestByLocation, {
-    options: {
-      // fetchPolicy: "cache-and-network",
-      variables: { location: "" },
-    },
-  })
-)(RestDes);
+export default withApollo(RestDes);

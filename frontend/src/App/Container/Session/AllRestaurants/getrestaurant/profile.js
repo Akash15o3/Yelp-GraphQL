@@ -3,8 +3,11 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import axios from "axios";
 import cookie from "react-cookies";
 import Dish from "./dish";
-import Primary from "./primary";
+// import Primary from "./primary";
 import Order from "./orderDish";
+import { getRestaurantQuery } from "../../../../../queries/queries";
+import { getDishQuery } from "../../../../../queries/queries";
+import { graphql, compose } from "react-apollo";
 
 class Rest_Profile extends React.Component {
   constructor(props) {
@@ -18,50 +21,48 @@ class Rest_Profile extends React.Component {
       website: "",
       name: "",
       dishOrder: [],
+      data: [],
+      dataList: [],
+      eee: this.props.match.params.email,
     };
   }
+  componentWillMount() {
+    localStorage.setItem("eee", this.props.match.params.email);
 
-  getInfo = () => {
-    const data = {
-      email: this.props.match.params.email,
-    };
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios
-      .post("http://localhost:3001/rest_profile", data)
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            contact: response.data.contact,
-            name: response.data.name,
-            email: response.data.email,
-            website: response.data.website,
-          });
-          console.log("Response Post Call", response);
-          sessionStorage.setItem(
-            "dishOrder",
-            JSON.stringify(this.state.dishOrder)
-          );
-          sessionStorage.setItem("restaurantNameForOrder", response.data.name);
-          sessionStorage.setItem("restaurantEmailForOrder", data.email);
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
-  };
-
+    console.log(
+      "Email id to get rest profile for comp will mount ",
+      localStorage.getItem("eee")
+    );
+    sessionStorage.setItem("restaurantNameForOrder", this.state.data.name);
+  }
   componentDidMount() {
-    this.getInfo();
+    console.log("Email id to get rest profile ", localStorage.getItem("eee"));
+    sessionStorage.setItem("dishOrder", JSON.stringify(this.state.dishOrder));
+    if (this.props.data.restaurant) {
+      let props = this.props.data.restaurant;
+      this.setState({
+        data: props,
+      });
+    }
+    sessionStorage.setItem("restaurantNameForOrder", this.state.data.name);
+    // if (this.props.data.getDishQuery) {
+    //   let props = this.props.data.getDishQuery;
+    //   this.setState({
+    //     dataList: props,
+    //   });
+    // }
+  }
+
+  componentDidUpdate(prevProps) {
+    console.log("Data Update in profile ", this.props.data);
+    if (this.props.data !== prevProps.data) {
+      console.log("in if of component did update of profile");
+      let props = this.props.data.restaurant;
+      this.setState({
+        data: props,
+      });
+    }
+    sessionStorage.setItem("restaurantNameForOrder", this.state.data.name);
   }
 
   render() {
@@ -72,21 +73,19 @@ class Rest_Profile extends React.Component {
             <Row
               className="all-row"
               style={{ textAlign: "center", marginTop: 10 + "px" }}
-            >
-              <Primary email={this.props.match.params.email} />
-            </Row>
+            ></Row>
             <Row className="all-row"></Row>
             <Row className="all-row">
               <Container className="background top-10 padding-all skills">
                 <h5>Contact Info</h5>
                 <p>
-                  Mobile No: <span>{this.state.contact}</span>
+                  Mobile No: <span>{this.state.data.contact}</span>
                 </p>
                 <p>
-                  Email: <span>{this.state.email}</span>
+                  Email: <span>{this.state.data.email}</span>
                 </p>
                 <p>
-                  Website: <span>{this.state.website}</span>
+                  Website: <span>{this.state.data.website}</span>
                 </p>
               </Container>
             </Row>
@@ -103,4 +102,11 @@ class Rest_Profile extends React.Component {
   }
 }
 
-export default Rest_Profile;
+export default compose(
+  graphql(getRestaurantQuery, {
+    options: (props) => ({
+      variables: { email: props.match.params.email },
+    }),
+  })
+)(Rest_Profile);
+// export default Rest_Profile;

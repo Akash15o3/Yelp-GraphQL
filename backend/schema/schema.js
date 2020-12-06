@@ -59,48 +59,51 @@ const RestProfileModel = new GraphQLObjectType({
   }),
 });
 
-// const Dish = new GraphQLObjectType({
-//   name: "Dish",
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     restaurantemail: { type: GraphQLString },
-//     dish_title: { type: GraphQLString },
-//     dish_cat: { type: GraphQLString },
-//     dish_price: { type: GraphQLString },
-//     dish_des: { type: GraphQLString },
-//     dish_ing: { type: GraphQLString },
-//   }),
-// });
+const getDishModel = new GraphQLObjectType({
+  name: "Dish",
+  fields: () => ({
+    _id: { type: GraphQLID },
+    restaurantemail: { type: GraphQLString },
+    dish_title: { type: GraphQLString },
+    dish_cat: { type: GraphQLString },
+    dish_price: { type: GraphQLString },
+    dish_des: { type: GraphQLString },
+    dish_ing: { type: GraphQLString },
+  }),
+});
 
-// const Order = new GraphQLObjectType({
-//   name: "Order",
-//   fields: () => ({
-//     _id: { type: GraphQLID },
-//     customerEmailForOrder: { type: GraphQLString },
-//     restaurantEmailForOrder: { type: GraphQLString },
-//     customerNameForOrder: { type: GraphQLString },
-//     restaurantNameForOrder: { type: GraphQLString },
-//     status: { type: GraphQLString },
-//     deliveryType: { type: GraphQLString },
-//     pickupStatus: { type: GraphQLString },
-//     deliveryStatus: { type: GraphQLString },
-//     timeOfOrder: { type: GraphQLString },
-//     timestamp: { type: GraphQLString },
-//     dishOrder: {
-//       type: new GraphQLList(orderdish),
-//       resolve(parent, args) {
-//         return parent.dishOrder;
-//       },
-//     },
-//   }),
-// });
-
-// const orderDish = new GraphQLObjectType({
-//   name: "orderDish",
-//   fields: () => ({
-//     orderDish: { type: GraphQLString },
-//   }),
-// });
+const dishOrder = new GraphQLObjectType({
+  name: "dishOrder",
+  fields: () => ({
+    _id: { type: GraphQLID },
+    customerEmailForOrder: { type: GraphQLString },
+    restaurantEmailForOrder: { type: GraphQLString },
+    customerNameForOrder: { type: GraphQLString },
+    restaurantNameForOrder: { type: GraphQLString },
+    status: { type: GraphQLString },
+    deliveryType: { type: GraphQLString },
+    pickupStatus: { type: GraphQLString },
+    deliveryStatus: { type: GraphQLString },
+    timeOfOrder: { type: GraphQLString },
+    timestamp: { type: GraphQLString },
+    dishOrder: { type: GraphQLString },
+    //  dishOrder: { type: GraphQLList() },
+    // dishOrder: {
+    //   type: new GraphQLList(dishes),
+    //   resolve(parent, args) {
+    //     return parent.dishOrder;
+    //   },
+    // },
+  }),
+});
+const dishes = new GraphQLObjectType({
+  name: "dishes",
+  fields: () => ({
+    dishname: {
+      type: GraphQLString,
+    },
+  }),
+});
 
 const StatusType = new GraphQLObjectType({
   name: "Status",
@@ -116,9 +119,9 @@ const RootQuery = new GraphQLObjectType({
   fields: {
     customer: {
       type: CustomerType,
-      args: { _id: { type: GraphQLID } },
+      args: { email: { type: GraphQLString } },
       async resolve(parent, args) {
-        let user = Cust_Profile.findById(args._id);
+        let user = Cust_Profile.findOne({ email: args.email });
         if (user) {
           return user;
         }
@@ -126,14 +129,81 @@ const RootQuery = new GraphQLObjectType({
     },
     restaurant: {
       type: RestProfileModel,
-      args: { _id: { type: GraphQLID } },
+      args: { email: { type: GraphQLString } },
       async resolve(parent, args) {
-        let user = await Rest_Profile.findById(args._id);
+        console.log("in return res profile");
+        let user = await Rest_Profile.findOne({ email: args.email });
         if (user) {
+          // console.log("rest details", user);
           return user;
         }
       },
     },
+
+    dishquery: {
+      type: new GraphQLList(getDishModel),
+      args: { email: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log("in return res profile");
+        let user = await Dish.find({ restaurantemail: args.email });
+        if (user) {
+          console.log("dish details", user);
+          return user;
+        }
+      },
+    },
+
+    restaurantOrder: {
+      type: new GraphQLList(dishOrder),
+      args: { restaurantEmailForOrder: { type: GraphQLString } },
+      async resolve(parent, args) {
+        let user = await Order.find({
+          restaurantEmailForOrder: args.restaurantEmailForOrder,
+        });
+        if (user) {
+          console.log("dish order from restaurant", user);
+          return user;
+        }
+      },
+    },
+
+    restaurantOrderByStatus: {
+      type: new GraphQLList(dishOrder),
+      args: {
+        restaurantEmailForOrder: { type: GraphQLString },
+        status: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        console.log(
+          "values for searching",
+          args.restaurantEmailForOrder,
+          args.status
+        );
+        let user = await Order.find({
+          restaurantEmailForOrder: args.restaurantEmailForOrder,
+          status: args.status,
+        });
+        if (user) {
+          console.log("dish order from restaurant", user);
+          return user;
+        }
+      },
+    },
+
+    customerOrder: {
+      type: new GraphQLList(dishOrder),
+      args: { customerEmailForOrder: { type: GraphQLString } },
+      async resolve(parent, args) {
+        let user = await Order.find({
+          customerEmailForOrder: args.customerEmailForOrder,
+        });
+        if (user) {
+          console.log("dish order from restaurant", user);
+          return user;
+        }
+      },
+    },
+
     allRestaurant: {
       type: new GraphQLList(RestProfileModel),
       args: { name: { type: GraphQLString } },
@@ -191,6 +261,81 @@ const Mutation = new GraphQLObjectType({
         });
       },
     },
+
+    adddish: {
+      type: StatusType,
+      args: {
+        restaurantemail: { type: GraphQLString },
+        dish_title: { type: GraphQLString },
+        dish_cat: { type: GraphQLString },
+        dish_price: { type: GraphQLString },
+        dish_des: { type: GraphQLString },
+        dish_ing: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        //console.log("Stud Signup" + args);
+        var newuser = new Dish({
+          restaurantemail: args.restaurantemail,
+          dish_title: args.dish_title,
+          dish_cat: args.dish_cat,
+          dish_price: args.dish_price,
+          dish_des: args.dish_des,
+          dish_ing: args.dish_ing,
+        });
+        newuser.save((error, data) => {
+          if (data) {
+            return { status: 200, message: "Dish_ADDED" };
+          } else {
+            return { status: 500, message: "INTERNAL_SERVER_ERROR" };
+          }
+        });
+      },
+    },
+
+    addOrder: {
+      type: StatusType,
+      args: {
+        customerEmailForOrder: { type: GraphQLString },
+        restaurantEmailForOrder: { type: GraphQLString },
+        customerNameForOrder: { type: GraphQLString },
+        restaurantNameForOrder: { type: GraphQLString },
+        status: { type: GraphQLString },
+        deliveryType: { type: GraphQLString },
+        pickupStatus: { type: GraphQLString },
+        deliveryStatus: { type: GraphQLString },
+        timeOfOrder: { type: GraphQLString },
+        // timestamp: { type: GraphQLString },
+        status: { type: GraphQLString },
+        dishOrder: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        //console.log("Stud Signup" + args);
+        var newuser = new Order({
+          customerEmailForOrder: args.customerEmailForOrder,
+          restaurantEmailForOrder: args.restaurantEmailForOrder,
+          customerNameForOrder: args.customerNameForOrder,
+          restaurantNameForOrder: args.restaurantNameForOrder,
+          status: args.status,
+          deliveryType: args.deliveryType,
+          pickupStatus: args.pickupStatus,
+          deliveryStatus: args.deliveryStatus,
+          timeOfOrder: args.timeOfOrder,
+          status: args.status,
+
+          dishOrder: args.dishOrder,
+        });
+        console.log("in resolve function and order details", newuser);
+        newuser.save((error, data) => {
+          console.log("if save mode", data);
+          if (data) {
+            return { status: 200, message: "Dish_ADDED" };
+          } else {
+            return { status: 500, message: "INTERNAL_SERVER_ERROR" };
+          }
+        });
+      },
+    },
+
     addCustomer: {
       type: StatusType,
       args: {
@@ -235,6 +380,7 @@ const Mutation = new GraphQLObjectType({
         pass: { type: GraphQLString },
       },
       resolve(parent, args) {
+        console.log("in return login", args);
         return RestLogin(args);
       },
     },
@@ -271,7 +417,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         _id: { type: GraphQLString },
         restaurantID: { type: GraphQLString },
-        name: { type: GraphQLString },
+        rest_name: { type: GraphQLString },
         location: { type: GraphQLString },
         email: { type: GraphQLString },
         pass: { type: GraphQLString },
@@ -284,7 +430,7 @@ const Mutation = new GraphQLObjectType({
       async resolve(parent, args) {
         var updaterest = {
           restaurantID: args.restaurantID,
-          name: args.name,
+          name: args.rest_name,
           location: args.location,
           email: args.email,
           pass: args.pass,
@@ -296,6 +442,31 @@ const Mutation = new GraphQLObjectType({
         };
         Rest_Profile.updateOne(
           { email: args.email },
+          { $set: updaterest },
+          (error, user) => {
+            if (error) {
+              return { status: 500, message: "INTERNAL_SERVER_ERROR" };
+            } else {
+              return { status: 200, message: "UPDATED" };
+            }
+          }
+        );
+        //console.log(args);
+      },
+    },
+
+    updateOrderStatus: {
+      type: StatusType,
+      args: {
+        _id: { type: GraphQLString },
+        status: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        var updaterest = {
+          status: args.status,
+        };
+        Order.findOneAndUpdate(
+          { _id: args._id },
           { $set: updaterest },
           (error, user) => {
             if (error) {

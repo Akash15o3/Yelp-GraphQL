@@ -50,15 +50,18 @@ class signupform extends Component {
           "CHecking response from mutation to put email in session storage",
           response.message
         );
+        console.log("CHecking response ", response.message.email);
         // localStorage.setItem('_id', response.message);
         // localStorage.setItem('type', 'Company');
         localStorage.setItem("LogFlag", true);
+        localStorage.setItem("remail", response.message);
         localStorage.setItem("typeofuser", "Restaurant");
         localStorage.setItem("_id", response.message);
         this.setState({
           authFlag: true,
         });
       } else {
+        console.log("error");
         this.setState({
           authFlag: false,
         });

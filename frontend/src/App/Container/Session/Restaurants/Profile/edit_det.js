@@ -211,12 +211,3 @@ class edit extends React.Component {
 export default compose(
   graphql(updateRestaurantProfile, { name: "updateRestaurantProfile" })
 )(edit);
-// <Form.Group controlId="formEmail">
-//               <Form.Label>Email address</Form.Label>
-//               <Form.Control
-//                 type="email"
-//                 placeholder="Enter email"
-//                 value={this.state.email}
-//                 onChange={this.email}
-//               />
-//             </Form.Group>

@@ -3,11 +3,15 @@ import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Link } from "react-router-dom";
-
+import { getRestaurantOrder } from "../../../../../../queries/queries";
+import { getRestaurantOrderByStatus } from "../../../../../../queries/queries";
+import { graphql, compose, withApollo } from "react-apollo";
+import { updateOrderStatus } from "../../../../../../mutation/mutation";
 class RestOrder extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      data: [],
       dataList: [],
       dataListSearch: [],
       handleChange: "",
@@ -17,10 +21,67 @@ class RestOrder extends React.Component {
       limit: 2,
       skip: 0,
     };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChangeFilter = this.handleChangeFilter.bind(this);
+    // this.handleSubmit = this.handleSubmit.bind(this);
+    // this.handleChangeFilter = this.handleChangeFilter.bind(this);
 
-    this.clearFlag = this.clearFlag.bind(this);
+    // this.clearFlag = this.clearFlag.bind(this);
+  }
+
+  updatePers = async (e) => {
+    // e.preventDefault();
+    //set the with credentials to true
+    let mutationResponse = await this.props.updateOrderStatus({
+      variables: {
+        status: e.target.value,
+
+        _id: e.target.id,
+      },
+    });
+    let response = mutationResponse.data.updateOrderStatus;
+    if (response) {
+      if (response.status === "200") {
+        alert("Successfully Updated");
+        this.handleClose();
+      } else {
+        console.log("unsuccessful");
+      }
+    }
+  };
+
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("handle submit");
+    console.log(
+      "Values for handle submit",
+      localStorage.getItem("_id"),
+      this.state.status
+    );
+    const { data } = await this.props.client.query({
+      query: getRestaurantOrderByStatus,
+      variables: {
+        restaurantEmailForOrder: localStorage.getItem("_id"),
+        status: this.state.status,
+      },
+      fetchPolicy: "no-cache",
+    });
+    this.setState({
+      dataListSearch: data.restaurantOrderByStatus,
+      filterflag: 1,
+    });
+    console.log("using apollo client", this.state.data);
+  };
+
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getRestaurantOrder,
+
+      variables: { restaurantEmailForOrder: localStorage.getItem("_id") },
+      fetchPolicy: "no-cache",
+    });
+
+    this.setState({ data: data.restaurantOrder });
+
+    console.log("using apollo client", this.state.data);
   }
 
   handleChangeFilter = (e) => {
@@ -30,143 +91,70 @@ class RestOrder extends React.Component {
     console.log(e.target.value, "state", this.state.status);
   };
 
-  handleSubmit(e1) {
-    console.log("Status", this.state.status);
-    // console.log(this.fnameChange, this.fnameChange.firstname);
-    axios.defaults.withCredentials = true;
+  // handleSubmit(e1) {
+  //   console.log("Status", this.state.status);
+  //   // console.log(this.fnameChange, this.fnameChange.firstname);
+  //   axios.defaults.withCredentials = true;
 
-    axios
-      .get(
-        "http://localhost:3001/orderbystatus?status=" +
-          this.state.status +
-          "&restaurantEmailForOrder=" +
-          sessionStorage.getItem("restaurantEmailForOrder")
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            dataListSearch: response.data,
-          });
-          // this.getRestOrder();
-          // console.log("Dish Data", response.data);
-          console.log("Test", this.state.dataListSearch);
-        } else {
-          this.setState({
-            error: "<p style={{color: red}}>Please enter correct Email</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct Email" + e,
-        });
-      });
-    // this.setState({ filterflag: 1 });
-    this.state.filterflag = 1;
-    e1.preventDefault();
-  }
+  //   axios
+  //     .get(
+  //       "http://localhost:3001/orderbystatus?status=" +
+  //         this.state.status +
+  //         "&restaurantEmailForOrder=" +
+  //         sessionStorage.getItem("restaurantEmailForOrder")
+  //     )
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         this.setState({
+  //           error: "",
+  //           dataListSearch: response.data,
+  //         });
+  //         // this.getRestOrder();
+  //         // console.log("Dish Data", response.data);
+  //         console.log("Test", this.state.dataListSearch);
+  //       } else {
+  //         this.setState({
+  //           error: "<p style={{color: red}}>Please enter correct Email</p>",
+  //           authFlag: false,
+  //         });
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       this.setState({
+  //         error: "Please enter correct Email" + e,
+  //       });
+  //     });
+  //   // this.setState({ filterflag: 1 });
+  //   this.state.filterflag = 1;
+  //   e1.preventDefault();
+  // }
 
-  clearFlag(e) {
-    this.setState({ filterflag: 0 });
-    this.getRestOrder();
-    e.preventDefault();
-  }
+  // clearFlag(e) {
+  //   this.setState({ filterflag: 0 });
 
-  handleChange = (e) => {
-    console.log("In Handle CHange", e.target.id);
-    this.updatedOrderStatus = e.target.value;
-
-    this.setState({ selectValue: this.updatedOrderStatus });
-    const data = {
-      updatedStatus: e.target.value,
-      timestamp: e.target.id,
-    };
-
-    axios
-      .post("http://localhost:3001/updateOrderStatus", data)
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            authFlag: true,
-          });
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct credentials" + e,
-        });
-      });
-  };
-
-  getRestOrder = () => {
-    axios.defaults.withCredentials = true;
-
-    const orderData = {
-      restaurantEmailForOrder: sessionStorage.getItem(
-        "restaurantEmailForOrder"
-      ),
-    };
-
-    axios
-      .get(
-        "http://localhost:3001/getRestOrder?restaurantEmailForOrder=" +
-          orderData.restaurantEmailForOrder +
-          "&limit=" +
-          this.state.limit +
-          "&skip=" +
-          this.state.skip
-      )
-      .then((response) => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            dataList: response.data,
-          });
-        } else {
-          this.setState({
-            error:
-              "<p style={{color: red}}>Please enter correct credentials</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Error while ordering" + e,
-        });
-      });
-  };
+  //   e.preventDefault();
+  // }
 
   getTimeOfOrder = (e) => {
     //e.preventDefault();
     console.log("Value of Time", e);
   };
 
-  componentDidMount() {
-    this.getRestOrder();
-    this.setState({
-      handleChange: this.props.handleChange,
-      updatedStatus: this.props.updatedstatus,
-    });
-  }
+  // componentDidMount() {
+  //   this.getRestOrder();
+  //   this.setState({
+  //     handleChange: this.props.handleChange,
+  //     updatedStatus: this.props.updatedstatus,
+  //   });
+  // }
 
   render() {
     const filterflag = this.state.filterflag;
 
     if (filterflag === 0) {
-      var display = this.state.dataList.map(
+      var display = this.state.data.map(
         ({
+          _id,
           customerEmailForOrder,
           restaurantEmailForOrder,
           customerNameForOrder,
@@ -187,7 +175,7 @@ class RestOrder extends React.Component {
                       <Container>
                         <Link
                           id={timeOfOrder}
-                          to={`/cust_prof_message/` + customerEmailForOrder}
+                          to={`/cust_prof/` + customerEmailForOrder}
                           onClick={this.getTimeOfOrder(timeOfOrder)}
                           onR
                         >
@@ -207,9 +195,9 @@ class RestOrder extends React.Component {
                             <h6 className="small-grey">
                               Status of Order :
                               <select
-                                id={timeOfOrder}
+                                id={_id}
                                 defaultValue={status}
-                                onChange={this.handleChange}
+                                onChange={this.updatePers}
                               >
                                 <option value="Received">Received</option>
                                 <option value="Preparing">Preparing</option>
@@ -242,6 +230,7 @@ class RestOrder extends React.Component {
     } else if (filterflag === 1) {
       var display = this.state.dataListSearch.map(
         ({
+          _id,
           customerEmailForOrder,
           restaurantEmailForOrder,
           customerNameForOrder,
@@ -280,17 +269,7 @@ class RestOrder extends React.Component {
                           </Row>
                           <Row>
                             <h6 className="small-grey">
-                              Status of Order :
-                              <select
-                                id={timeOfOrder}
-                                defaultValue={status}
-                                onChange={this.handleChange}
-                              >
-                                <option value="Received">Received</option>
-                                <option value="Preparing">Preparing</option>
-                                <option value="On The Way">On The Way</option>
-                                <option value="Delivered">Delivered</option>
-                              </select>
+                              Status of Order : {status}
                             </h6>
                           </Row>
                           <Row>
@@ -348,4 +327,13 @@ class RestOrder extends React.Component {
   }
 }
 
-export default RestOrder;
+export default compose(
+  // graphql(getRestaurantOrder, {
+  //   options: {
+  //     // fetchPolicy: "cache-and-network",
+  //     variables: { restaurantEmailForOrder: localStorage.getItem("_id") },
+  //   },
+  // }),
+  withApollo,
+  graphql(updateOrderStatus, { name: "updateOrderStatus" })
+)(RestOrder);

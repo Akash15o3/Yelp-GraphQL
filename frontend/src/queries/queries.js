@@ -1,8 +1,8 @@
 import { gql } from "apollo-boost";
 
 const getCustomerQuery = gql`
-  query($_id: ID) {
-    customer(_id: $_id) {
+  query($email: String) {
+    customer(email: $email) {
       customerID
       fname
       lname
@@ -25,8 +25,8 @@ const getCustomerQuery = gql`
 `;
 
 const getRestaurantQuery = gql`
-  query($_id: ID) {
-    restaurant(_id: $_id) {
+  query($email: String) {
+    restaurant(email: $email) {
       restaurantID
       pass
       contact
@@ -39,6 +39,78 @@ const getRestaurantQuery = gql`
       email
       website
       reviews
+    }
+  }
+`;
+
+const getDishQuery = gql`
+  query($email: String) {
+    dishquery(email: $email) {
+      restaurantemail
+      dish_title
+      dish_cat
+      dish_price
+      dish_des
+      dish_ing
+    }
+  }
+`;
+
+const getRestaurantOrder = gql`
+  query($restaurantEmailForOrder: String) {
+    restaurantOrder(restaurantEmailForOrder: $restaurantEmailForOrder) {
+      _id
+      customerEmailForOrder
+      restaurantEmailForOrder
+      customerNameForOrder
+      restaurantNameForOrder
+      dishOrder
+      status
+      deliveryType
+      pickupStatus
+      deliveryStatus
+      timeOfOrder
+      timestamp
+    }
+  }
+`;
+
+const getRestaurantOrderByStatus = gql`
+  query($restaurantEmailForOrder: String, $status: String) {
+    restaurantOrderByStatus(
+      restaurantEmailForOrder: $restaurantEmailForOrder
+      status: $status
+    ) {
+      _id
+      customerEmailForOrder
+      restaurantEmailForOrder
+      customerNameForOrder
+      restaurantNameForOrder
+      dishOrder
+      status
+      deliveryType
+      pickupStatus
+      deliveryStatus
+      timeOfOrder
+      timestamp
+    }
+  }
+`;
+
+const getCustomerOrder = gql`
+  query($customerEmailForOrder: String) {
+    customerOrder(customerEmailForOrder: $customerEmailForOrder) {
+      customerEmailForOrder
+      restaurantEmailForOrder
+      customerNameForOrder
+      restaurantNameForOrder
+      dishOrder
+      status
+      deliveryType
+      pickupStatus
+      deliveryStatus
+      timeOfOrder
+      timestamp
     }
   }
 `;
@@ -87,4 +159,9 @@ export {
   getAllRestaurantQuery,
   getRestByLocation,
   getRestaurantQuery,
+  getRestaurantOrder,
+  getDishQuery,
+  getCustomerOrder,
+  getRestaurantOrderByStatus,
+  // getRestaurantOrderByStatus,
 };

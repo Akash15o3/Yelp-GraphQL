@@ -6,7 +6,7 @@ const login = async (args) => {
     pass: args.pass,
   });
   if (user) {
-    return { status: 200, message: user._id.toString() };
+    return { status: 200, message: user.email.toString() };
   } else {
     return { status: 500, message: "INTERNAL_SERVER_ERROR" };
   }

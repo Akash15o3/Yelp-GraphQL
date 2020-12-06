@@ -30,6 +30,15 @@ const loginMutation = gql`
   }
 `;
 
+const restLoginMutation = gql`
+  mutation restLogin($email: String, $pass: String) {
+    restLogin(email: $email, pass: $pass) {
+      message
+      status
+    }
+  }
+`;
+
 const updateCustomerProfile = gql`
   mutation updateCustomerProfile(
     $_id: String
@@ -108,6 +117,15 @@ const updateRestaurantProfile = gql`
   }
 `;
 
+const updateOrderStatus = gql`
+  mutation updateOrderStatus($_id: String, $status: String) {
+    updateOrderStatus(_id: $_id, status: $status) {
+      message
+      status
+    }
+  }
+`;
+
 const addRestaurantMutation = gql`
   mutation addRestaurant(
     $name: String
@@ -129,9 +147,54 @@ const addRestaurantMutation = gql`
   }
 `;
 
-const restLoginMutation = gql`
-  mutation restLogin($email: String, $pass: String) {
-    restLogin(email: $email, pass: $pass) {
+const addDishMutation = gql`
+  mutation adddish(
+    $restaurantemail: String
+    $dish_title: String
+    $dish_cat: String
+    $dish_price: String
+    $dish_des: String
+    $dish_ing: String
+  ) {
+    adddish(
+      restaurantemail: $restaurantemail
+      dish_title: $dish_title
+      dish_cat: $dish_cat
+      dish_price: $dish_price
+      dish_des: $dish_des
+      dish_ing: $dish_ing
+    ) {
+      message
+      status
+    }
+  }
+`;
+
+const addOrderMutation = gql`
+  mutation addOrder(
+    $customerEmailForOrder: String
+    $restaurantEmailForOrder: String
+    $customerNameForOrder: String
+    $restaurantNameForOrder: String
+    $dishOrder: String
+    $status: String
+    $deliveryType: String
+    $pickupStatus: String
+    $deliveryStatus: String
+    $timeOfOrder: String
+  ) {
+    addOrder(
+      customerEmailForOrder: $customerEmailForOrder
+      restaurantEmailForOrder: $restaurantEmailForOrder
+      customerNameForOrder: $customerNameForOrder
+      restaurantNameForOrder: $restaurantNameForOrder
+      dishOrder: $dishOrder
+      status: $status
+      deliveryType: $deliveryType
+      pickupStatus: $pickupStatus
+      deliveryStatus: $deliveryStatus
+      timeOfOrder: $timeOfOrder
+    ) {
       message
       status
     }
@@ -145,4 +208,7 @@ export {
   loginMutation,
   updateCustomerProfile,
   updateRestaurantProfile,
+  addDishMutation,
+  addOrderMutation,
+  updateOrderStatus,
 };

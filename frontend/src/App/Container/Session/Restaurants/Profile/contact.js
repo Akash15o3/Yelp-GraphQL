@@ -3,6 +3,9 @@ import { Container, Row, Button } from "react-bootstrap";
 import EditDet from "./edit_det";
 import axios from "axios";
 import cookie from "react-cookies";
+import { addDishMutation } from "../../../../../mutation/mutation";
+import { getDishQuery } from "../../../../../queries/queries";
+import { graphql, compose, withApollo } from "react-apollo";
 
 class Contact extends React.Component {
   constructor(props) {
@@ -19,6 +22,7 @@ class Contact extends React.Component {
       dish_ing: "",
       message: "",
       dataList: [],
+      data: [],
     };
     this.onSubmit = this.onSubmit.bind(this);
     // this.onChange = this.onChange.bind(this);
@@ -53,83 +57,54 @@ class Contact extends React.Component {
     });
   };
 
-  getdishInfo = () => {
-    // axios.defaults.withCredentials = true;
-    // //make a post request with the user data
-    // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-    //   "token"
-    // );
-    // axios
-    //   .get(
-    //     "http://localhost:3001/restaurant_profile/getDish?restaurantemail=" +
-    //       localStorage.getItem("username")
-    //   )
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       this.setState({
-    //         error: "",
-    //         dataList: response.data,
-    //       });
-    //       console.log("Dish Data", response.data);
-    //       //console.log("Test",this.);
-    //     } else {
-    //       this.setState({
-    //         error: "<p style={{color: red}}>Please enter correct Email</p>",
-    //         authFlag: false,
-    //       });
-    //     }
-    //   })
-    //   .catch((e) => {
-    //     this.setState({
-    //       error: "Please enter correct Email" + e,
-    //     });
-    //   });
-  };
-  onSubmit(e) {
+  onSubmit = async (e) => {
     e.preventDefault();
-    let data = {
-      restaurantemail: this.props.email,
-      restaurantname: this.props.name,
-      dish_title: this.state.dish_title,
-      dish_cat: this.state.dish_cat,
-      dish_price: this.state.dish_price,
-      dish_des: this.state.dish_des,
-      dish_ing: this.state.dish_ing,
-    };
-    console.log("datadata", data);
-    // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-    //   "token"
-    // );
-    // axios
-    //   .post("http://localhost:3001/addDish", data)
-    //   .then((response) => {
-    //     this.setState({
-    //       success: true,
-    //     });
-    //     this.getdishInfo();
-    //   })
-    //   .catch((error) => {
-    //     this.setState({
-    //       message: error.response.data,
-    //     });
-    //   });
-  }
-
-  componentWillMount() {
-    this.getdishInfo();
-  }
-
-  componentDidMount() {
-    this.setState({
-      setShow: this.props.show,
-      // dish_title: this.props.data[0].dish_title,
-      // dish_cat: this.props.data[0].dish_cat,
-      // dish_des: this.props.data[0].dish_des,
-      // dish_price: this.props.data[0].dish_price,
-      // restaurantemail: this.props.data[0].restaurantemail,
-      //   restaurantname: this.props.data[0].name,
+    let mutationResponse = await this.props.addDishMutation({
+      variables: {
+        restaurantemail: this.props.email,
+        restaurantname: this.props.name,
+        dish_title: this.state.dish_title,
+        dish_cat: this.state.dish_cat,
+        dish_price: this.state.dish_price,
+        dish_des: this.state.dish_des,
+        dish_ing: this.state.dish_ing,
+      },
     });
+    let response = mutationResponse.data.addDishMutation;
+    console.log(mutationResponse);
+    if (response) {
+      if (response.status === "200") {
+        alert(response.message);
+      } else {
+        console.log("unsuccessful");
+      }
+    }
+  };
+
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getDishQuery,
+
+      variables: { email: localStorage.getItem("remail") },
+      fetchPolicy: "no-cache",
+    });
+
+    this.setState({ data: data.dishquery });
+
+    console.log("using apollo client", this.state.data);
   }
+
+  // componentDidMount() {
+  //   this.setState({
+  //     setShow: this.props.show,
+  //     // dish_title: this.props.data[0].dish_title,
+  //     // dish_cat: this.props.data[0].dish_cat,
+  //     // dish_des: this.props.data[0].dish_des,
+  //     // dish_price: this.props.data[0].dish_price,
+  //     // restaurantemail: this.props.data[0].restaurantemail,
+  //     //   restaurantname: this.props.data[0].name,
+  //   });
+  // }
   handleClose = () => {
     // this.props.getInfo();
 
@@ -140,8 +115,8 @@ class Contact extends React.Component {
   };
 
   render() {
-    // console.log("Mapp Function", this.state.dataList);
-    var details = this.state.dataList.map(
+    console.log("Mapp Function", this.state.dataList);
+    var details = this.state.data.map(
       ({
         restaurantemail,
         dish_title,
@@ -197,8 +172,7 @@ class Contact extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {/*Display the Table row based on data recieved*/}
-                {details}
+                {/*Display the Table row based on data recieved*/} {details}
               </tbody>
             </table>
           </div>
@@ -277,5 +251,7 @@ class Contact extends React.Component {
     );
   }
 }
-
-export default Contact;
+export default compose(
+  withApollo,
+  graphql(addDishMutation, { name: "addDishMutation" })
+)(Contact);

@@ -3,7 +3,9 @@ import { Container, Row, Button, Col, Form, Modal } from "react-bootstrap";
 // import EditDet from "./edit_det";
 import axios from "axios";
 import cookie from "react-cookies";
-
+// import DishDisplay from "./dishdisplay";
+import { getDishQuery } from "../../../../../queries/queries";
+import { graphql, compose, withApollo } from "react-apollo";
 class Dish extends React.Component {
   constructor(props) {
     super(props);
@@ -20,48 +22,26 @@ class Dish extends React.Component {
       message: "",
       dataList: [],
       title: [],
-      // dishOrder:[],
+      data: [],
+
+      dishOrder: [],
     };
     // this.onSubmit = this.onSubmit.bind(this);
     // this.onChange = this.onChange.bind(this);
   }
 
-  getdishInfo = () => {
-    axios.defaults.withCredentials = true;
-    const data = {
-      email: this.props.email,
-    };
-    console.log("in dish", data.email);
-    //make a post request with the user data
-    axios
-      .get("http://localhost:3001/getDish?restaurantemail=" + data.email)
-      .then((response) => {
-        if (response.status === 200) {
-          this.setState({
-            error: "",
-            dataList: response.data,
-          });
-          console.log("Dish Data", response.data);
-          //console.log("Test",this.);
-        } else {
-          this.setState({
-            error: "<p style={{color: red}}>Please enter correct Email</p>",
-            authFlag: false,
-          });
-        }
-      })
-      .catch((e) => {
-        this.setState({
-          error: "Please enter correct Email" + e,
-        });
-      });
-  };
+  async componentDidMount() {
+    const { data } = await this.props.client.query({
+      query: getDishQuery,
 
-  componentDidMount() {
-    this.getdishInfo();
-    // this.orderNow();
+      variables: { email: localStorage.getItem("eee") },
+      fetchPolicy: "no-cache",
+    });
+
+    this.setState({ data: data.dishquery });
+
+    console.log("using apollo client", this.state.data);
   }
-
   addDishToCart(dish_title) {
     var dishTitle = dish_title.dish_title;
 
@@ -86,8 +66,7 @@ class Dish extends React.Component {
   }
 
   render() {
-    console.log("Mapp Function", this.state.dataList);
-    var details = this.state.dataList.map(
+    var details = this.state.data.map(
       ({
         restaurantemail,
         dish_title,
@@ -136,8 +115,7 @@ class Dish extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {/*Display the Table row based on data recieved*/}
-              {details}
+              {/*Display the Table row based on data recieved*/} {details}
             </tbody>
           </table>
         </div>
@@ -146,4 +124,11 @@ class Dish extends React.Component {
   }
 }
 
-export default Dish;
+// export default compose(
+//   graphql(getDishQuery, {
+//     // options: (props) => ({ variables: { email: props.match.params.email } }),
+//     options: { email: localStorage.getItem("eee") },
+//   })
+// )(Dish);
+
+export default withApollo(Dish);
